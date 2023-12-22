@@ -7,10 +7,11 @@ import random
 
 client = WebSocketClient()
 
-thisfile = st.image("YoRu.png", width=600)
+steps = st.sidebar.slider("Steps", 1, 100, 20)
+cfg = st.sidebar.slider("Cfg", 1, 20, 7)
 
+thisfile = st.image("YoRu.png", use_column_width="always")
 my_bar = st.progress(0)
-
 col1, col2 = st.columns([3, 1])
 
 with col1:
@@ -27,7 +28,8 @@ with col2:
 
             prompt["6"]["inputs"]["text"] = prompttext
             ksampler["seed"] = random.randint(0, 1000000)  # random
-            ksampler["steps"] = 30
+            ksampler["steps"] = steps
+            ksampler["cfg"] = cfg
             prompt["5"]["inputs"]["width"] = 1024
             prompt["5"]["inputs"]["height"] = 1024
 
@@ -38,6 +40,7 @@ with col2:
                     my_bar.progress(
                         progress, f"Generating... {item} / {ksampler['steps']}"
                     )
+                    print(client.status.upper())
                     if client.status == "executing":  ##Doesnt quite work yet
                         my_bar.progress(
                             progress, f"Current Node: {client.current_node}"
@@ -45,8 +48,9 @@ with col2:
 
                     if client.preview is not None:
                         image = Image.open(io.BytesIO(client.preview[8:]))
-                        thisfile.image(image, width=600)
+                        thisfile.image(image, use_column_width="always")
 
             for node_id, images in item.items():
                 for image_data in images:
-                    thisfile.image(image_data, width=600)
+                    thisfile.image(image_data, use_column_width="always")
+        my_bar.progress(0)

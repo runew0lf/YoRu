@@ -76,11 +76,10 @@ class WebSocketClient:
                 print(f"message: {message}")
                 if message["type"] == "executing":
                     data = message["data"]
+                    self.status = "executing"
                     if data["node"] is None and data["prompt_id"] == prompt_id:
-                        self.status = "done"
                         break  # Execution is done
-                    elif data["node"] is not None:
-                        self.status = "executing"
+                    if data["node"] is not None:
                         self.current_node = data["node"]
                 if message["type"] == "progress":
                     self.status = "generating preview"
@@ -89,7 +88,6 @@ class WebSocketClient:
             else:
                 self.preview = out
                 continue
-
         history = self.get_history(prompt_id)[prompt_id]
         for o in history["outputs"]:
             for node_id in history["outputs"]:
@@ -102,4 +100,5 @@ class WebSocketClient:
                         )
                         images_output.append(image_data)
                 output_images[node_id] = images_output
+        self.status = "done"
         yield output_images  # Yield the final output_images

@@ -31,7 +31,7 @@ with col2:
 
         prompt["6"]["inputs"]["text"] = prompttext
         ksampler["seed"] = random.randint(0, 1000000)  # random
-        ksampler["steps"] = 20
+        ksampler["steps"] = 30
         prompt["5"]["inputs"]["width"] = 1024
         prompt["5"]["inputs"]["height"] = 1024
 

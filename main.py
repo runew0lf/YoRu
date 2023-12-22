@@ -15,6 +15,9 @@ thisfile = st.image(
 
 col1, col2 = st.columns([3, 1])
 
+progress_text = "Operation in progress. Please wait."
+my_bar = st.progress(0, text=progress_text)
+
 with col1:
     prompttext = st.text_area(
         "prompt", value="masterpiece, best quality, man", label_visibility="visible"
@@ -29,7 +32,10 @@ with col2:
         prompt["3"]["inputs"]["seed"] = random.randint(0, 1000000)  # random
         prompt["5"]["inputs"]["width"] = 1024
         prompt["5"]["inputs"]["height"] = 1024
+
+        ## We need to grab value while this is processing as excecution pauses
         images_dict = client.get_images(prompt)
+
         for node_id, images in images_dict.items():
             for image_data in images:
                 thisfile.image(image_data, width=600)

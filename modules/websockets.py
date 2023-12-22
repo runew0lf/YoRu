@@ -18,6 +18,17 @@ class WebSocketClient:
         self.status = None
         self.current_node = None
 
+    def __enter__(self):
+        # Code to execute when entering the `with` block.
+        # For example, connect to the server.
+        self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Code to execute when exiting the `with` block.
+        # For example, disconnect from the server.
+        self.disconnect()
+
     # Connect to the websocket server
     def connect(self):
         self.ws.connect(

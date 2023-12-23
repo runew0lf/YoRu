@@ -20,9 +20,10 @@ def main():
         "..\YoRu\outputs",
     ]
     # Run the command in a new shell
-    process = subprocess.Popen(command, shell=True)
-
     dirname = os.path.dirname(__file__)
+    os.chdir(dirname)
+
+    process = subprocess.Popen(command, shell=True)
     filename = os.path.join(dirname, "main.py")
     streamlit.web.bootstrap.run(filename, "", args, flag_options={})
 

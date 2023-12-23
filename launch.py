@@ -16,6 +16,8 @@ def main():
         "--disable-auto-launch",
         "--preview-method",
         "auto",
+        "--output-directory",
+        "..\YoRu\outputs",
     ]
     # Run the command in a new shell
     process = subprocess.Popen(command, shell=True)

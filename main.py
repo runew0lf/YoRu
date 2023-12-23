@@ -5,6 +5,7 @@ from modules.utils import load_workflow, convert_bytes_to_PIL
 
 # https://docs.streamlit.io/
 
+TEMP_PROMPT = "black and white pencil sketch, extreme side closeup of a wizards face with black tattoos, black background"
 
 client = WebSocketClient()
 
@@ -24,7 +25,7 @@ with main_column:
 
     with prompt_column:
         prompttext = st.text_area(
-            "prompt", value="masterpiece, best quality, man", label_visibility="hidden"
+            "prompt", value=TEMP_PROMPT, label_visibility="hidden"
         )
     with button_column:
         st.write("#")

@@ -1,9 +1,7 @@
 import streamlit as st
 from modules.websockets import WebSocketClient
-import json
-from PIL import Image
-import io
 import random
+from modules.utils import load_workflow, convert_bytes_to_PIL
 
 # https://docs.streamlit.io/
 
@@ -32,20 +30,19 @@ with main_column:
         st.write("#")
         if st.button(label="Generate", use_container_width=True):
             with WebSocketClient() as client:
-                with open("workflows\standard_sdxl.json", "r") as file:
-                    prompt = json.load(file)
+                workflow = load_workflow("standard_sdxl.json")
 
-                ksampler = prompt["3"]["inputs"]
+                ksampler = workflow["3"]["inputs"]
 
-                prompt["6"]["inputs"]["text"] = prompttext
+                workflow["6"]["inputs"]["text"] = prompttext
                 ksampler["seed"] = random.randint(0, 1000000)  # random
                 ksampler["steps"] = steps
                 ksampler["cfg"] = cfg
-                prompt["5"]["inputs"]["width"] = 1024
-                prompt["5"]["inputs"]["height"] = 1024
+                workflow["5"]["inputs"]["width"] = 1024
+                workflow["5"]["inputs"]["height"] = 1024
 
                 my_bar.progress(0, f"Loading Model...")
-                for item in client.get_images(prompt):
+                for item in client.get_images(workflow):
                     if client.status != "done":
                         progress = int((100 / ksampler["steps"]) * item)
                         my_bar.progress(
@@ -58,7 +55,7 @@ with main_column:
                             )
 
                         if client.preview is not None:
-                            image = Image.open(io.BytesIO(client.preview[8:]))
+                            image = convert_bytes_to_PIL(client.preview)
                             thisfile.image(image, use_column_width="always")
 
                 for node_id, images in item.items():

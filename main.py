@@ -1,6 +1,7 @@
 import streamlit as st
 from modules.websockets import WebSocketClient
 import random
+import requests
 from modules.utils import load_workflow, convert_bytes_to_PIL
 from modules.settings import resolutions
 
@@ -69,4 +70,5 @@ with main_column:
                     for image_data in images:
                         thisfile.image(image_data, use_column_width="always")
             my_bar.progress(0)
-        st.button(label="Stop", use_container_width=True)
+        if st.button(label="Stop", use_container_width=True):
+            requests.post(f"http://127.0.0.1:8188/interrupt", data="x")

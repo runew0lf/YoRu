@@ -21,7 +21,8 @@ def main():
     ]
     # Run the command in a new shell
     dirname = os.path.dirname(__file__)
-    os.chdir(dirname)
+    if dirname != "":
+        os.chdir(dirname)
 
     process = subprocess.Popen(command, shell=True)
     filename = os.path.join(dirname, "main.py")

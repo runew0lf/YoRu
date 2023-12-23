@@ -3,7 +3,7 @@ from modules.websockets import WebSocketClient
 import random
 import requests
 from modules.utils import load_workflow, convert_bytes_to_PIL
-from modules.settings import resolutions
+from modules.settings import resolutions, load_styles, styles, apply_style, path_manager
 
 # https://docs.streamlit.io/
 
@@ -15,11 +15,6 @@ st.set_page_config(layout="wide", page_title="YoRu", page_icon="🤖")
 
 _, main_column, right_column = st.columns([2, 6, 2])
 
-
-steps = right_column.slider("Steps", 1, 100, 20)
-cfg = right_column.slider("Cfg", 1, 20, 7)
-resolution_picker = right_column.selectbox("Resolution", resolutions)
-
 with main_column:
     _, indent, _ = st.columns([1, 3, 1])
     thisfile = indent.image("YoRu.png", use_column_width=True)
@@ -27,9 +22,20 @@ with main_column:
     prompt_column, button_column = st.columns([6, 1])
 
     with prompt_column:
-        prompttext = st.text_area(
+        prompt_text_area = st.text_area(
             "prompt", value=TEMP_PROMPT, label_visibility="hidden"
         )
+        if st.checkbox("Hurt Me Plenty", value=False):
+            steps = right_column.slider("Steps", 1, 100, 20)
+            cfg = right_column.slider("Cfg", 1, 20, 7)
+            resolution_picker = right_column.selectbox("Resolution", resolutions)
+            styles = right_column.multiselect(
+                "Styles", load_styles(), default="Style: sai-cinematic"
+            )
+            model = right_column.selectbox(
+                "Model", path_manager.model_filenames, index=5
+            )
+
     with button_column:
         st.write("#")
         if st.button(label="Generate", use_container_width=True):
@@ -38,7 +44,10 @@ with main_column:
 
                 ksampler = workflow["3"]["inputs"]
 
-                workflow["6"]["inputs"]["text"] = prompttext
+                workflow["6"]["inputs"]["text"], _ = apply_style(
+                    styles, prompt_text_area, ""
+                )
+                print(workflow["6"]["inputs"]["text"])
                 ksampler["seed"] = random.randint(0, 1000000)  # random
                 ksampler["steps"] = steps
                 ksampler["cfg"] = cfg
@@ -48,6 +57,7 @@ with main_column:
                 workflow["5"]["inputs"]["height"] = resolutions[resolution_picker][
                     "height"
                 ]
+                workflow["4"]["inputs"]["ckpt_name"] = model
 
                 my_bar.progress(0, f"Loading Model...")
                 for item in client.get_images(workflow):

@@ -2,6 +2,7 @@ import streamlit as st
 from modules.websockets import WebSocketClient
 import random
 from modules.utils import load_workflow, convert_bytes_to_PIL
+from modules.settings import resolutions
 
 # https://docs.streamlit.io/
 
@@ -16,6 +17,7 @@ _, main_column, right_column = st.columns([2, 6, 2])
 
 steps = right_column.slider("Steps", 1, 100, 20)
 cfg = right_column.slider("Cfg", 1, 20, 7)
+resolution_picker = right_column.selectbox("Resolution", resolutions)
 
 with main_column:
     _, indent, _ = st.columns([1, 3, 1])
@@ -39,8 +41,12 @@ with main_column:
                 ksampler["seed"] = random.randint(0, 1000000)  # random
                 ksampler["steps"] = steps
                 ksampler["cfg"] = cfg
-                workflow["5"]["inputs"]["width"] = 1024
-                workflow["5"]["inputs"]["height"] = 1024
+                workflow["5"]["inputs"]["width"] = resolutions[resolution_picker][
+                    "width"
+                ]
+                workflow["5"]["inputs"]["height"] = resolutions[resolution_picker][
+                    "height"
+                ]
 
                 my_bar.progress(0, f"Loading Model...")
                 for item in client.get_images(workflow):

@@ -1,4 +1,4 @@
-import toml
+import tomllib as toml
 import random
 import shutil
 from csv import DictReader
@@ -53,7 +53,7 @@ def apply_style(style, prompt, negative_prompt):
 
 
 def load_resolutions():
-    with open("settings/resolutions.toml", "r") as f:
+    with open("settings/resolutions.toml", "rb") as f:
         resolutions = toml.load(f)
     return resolutions
 

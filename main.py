@@ -32,7 +32,9 @@ st.set_page_config(layout="wide", page_title="YoRu", page_icon="🤖")
 #     unsafe_allow_html=True,
 # )
 
-_, main_column, right_column = st.columns([2, 6, 2])
+left_column, main_column, right_column = st.columns([2, 6, 2])
+
+# left_column.write(st.session_state)
 
 with main_column:
     _, indent, _ = st.columns([1, 3, 1])

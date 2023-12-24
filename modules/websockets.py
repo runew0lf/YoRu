@@ -78,6 +78,15 @@ class WebSocketClient:
         ) as response:
             return json.loads(response.read().decode())
 
+    def object_info(self, object_name: str) -> Dict[str, Any]:
+        """
+        Get object_info of object
+        """
+        with urllib.request.urlopen(
+            f"http://{self.server_address}/object_info/{object_name}"
+        ) as response:
+            return json.loads(response.read().decode())
+
     def get_images(
         self, prompt: str
     ) -> Generator[Union[int, Dict[str, Any]], None, None]:

@@ -8,7 +8,7 @@ from modules.settings import apply_style, load_styles, path_manager, resolutions
 from modules.utils import convert_bytes_to_PIL, load_workflow
 from modules.websockets import WebSocketClient
 
-from comfy.samplers import KSampler
+#from comfy.samplers import KSampler
 
 # https://docs.streamlit.io/
 # https://github.com/adriangalilea/streamlit-shortcuts
@@ -49,15 +49,17 @@ with main_column:
         if st.checkbox("Hurt Me Plenty", value=False):
             steps = right_column.slider("Steps", 1, 100, 20)
             cfg = right_column.slider("Cfg", 1, 20, 7)
+            samplers = client.object_info("KSampler")["sampler_name"]
             sampler = right_column.selectbox(
                 "sampler",
-                KSampler.SAMPLERS,
-                index=KSampler.SAMPLERS.index(TEMP_SAMPLER),
+                samplers,
+                index=samplers.index(TEMP_SAMPLER),
             )
+            schedulers = client.object_info("KSampler")["scheduler"]
             scheduler = right_column.selectbox(
                 "scheduler",
-                KSampler.SCHEDULERS,
-                index=KSampler.SCHEDULERS.index(TEMP_SCHEDULER),
+                schedulers,
+                index=schedulers.index(TEMP_SCHEDULER),
             )
             no_of_images = right_column.slider("Images", 1, 20, 1)
             resolution_picker = right_column.selectbox("Resolution", resolutions)

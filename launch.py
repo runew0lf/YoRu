@@ -28,7 +28,7 @@ def main():
     sys.path.append(
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "ComfyUI")
     )
-    process = subprocess.Popen(command, shell=True)
+#    process = subprocess.Popen(command, shell=True)
     filename = os.path.join(dirname, "main.py")
     streamlit.web.bootstrap.run(filename, "", args, flag_options={})
 

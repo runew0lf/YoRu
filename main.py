@@ -8,15 +8,29 @@ from modules.settings import apply_style, load_styles, path_manager, resolutions
 from modules.utils import convert_bytes_to_PIL, load_workflow
 from modules.websockets import WebSocketClient
 
+from comfy.samplers import KSampler
+
 # https://docs.streamlit.io/
 # https://github.com/adriangalilea/streamlit-shortcuts
 
 TEMP_PROMPT = "black and white pencil sketch, extreme side closeup of a wizards face with black tattoos, black background"
 TEMP_MODEL = "crystalClearXL_ccxl.safetensors"
+TEMP_SAMPLER = "dpmpp_3m_sde"
+TEMP_SCHEDULER = "karras"
 
 client = WebSocketClient()
-
 st.set_page_config(layout="wide", page_title="YoRu", page_icon="🤖")
+
+# The next bit can be used to hide all the headers and footers, but it also hides the streamlit menu
+
+# st.markdown(
+#     """
+# <style>
+#     #MainMenu, header, footer {visibility: hidden;}
+# </style>
+# """,
+#     unsafe_allow_html=True,
+# )
 
 _, main_column, right_column = st.columns([2, 6, 2])
 
@@ -33,6 +47,17 @@ with main_column:
         if st.checkbox("Hurt Me Plenty", value=False):
             steps = right_column.slider("Steps", 1, 100, 20)
             cfg = right_column.slider("Cfg", 1, 20, 7)
+            sampler = right_column.selectbox(
+                "sampler",
+                KSampler.SAMPLERS,
+                index=KSampler.SAMPLERS.index(TEMP_SAMPLER),
+            )
+            scheduler = right_column.selectbox(
+                "scheduler",
+                KSampler.SCHEDULERS,
+                index=KSampler.SCHEDULERS.index(TEMP_SCHEDULER),
+            )
+            no_of_images = right_column.slider("Images", 1, 20, 1)
             resolution_picker = right_column.selectbox("Resolution", resolutions)
             styles = right_column.multiselect(
                 "Styles", load_styles(), default="Style: sai-cinematic"
@@ -58,12 +83,15 @@ with main_column:
                 ksampler["seed"] = random.randint(0, 1000000)  # random
                 ksampler["steps"] = steps
                 ksampler["cfg"] = cfg
+                ksampler["sampler_name"] = sampler
+                ksampler["scheduler"] = scheduler
                 workflow["5"]["inputs"]["width"] = resolutions[resolution_picker][
                     "width"
                 ]
                 workflow["5"]["inputs"]["height"] = resolutions[resolution_picker][
                     "height"
                 ]
+                workflow["5"]["inputs"]["batch_size"] = no_of_images
                 workflow["4"]["inputs"]["ckpt_name"] = model
 
                 my_bar.progress(0, f"Loading Model...")

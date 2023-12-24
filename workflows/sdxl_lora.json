@@ -1,14 +1,14 @@
 {
   "3": {
     "inputs": {
-      "seed": 156680208700286,
+      "seed": 881970317246423,
       "steps": 30,
       "cfg": 7,
       "sampler_name": "dpmpp_3m_sde_gpu",
       "scheduler": "karras",
       "denoise": 1,
       "model": [
-        "4",
+        "10",
         0
       ],
       "positive": [
@@ -34,17 +34,17 @@
   },
   "5": {
     "inputs": {
-      "width": 1024,
-      "height": 1024,
+      "width": 896,
+      "height": 1152,
       "batch_size": 1
     },
     "class_type": "EmptyLatentImage"
   },
   "6": {
     "inputs": {
-      "text": "beautiful scenery nature glass bottle landscape, , purple galaxy bottle,",
+      "text": "professional 3d model orangeblack, futuristic warrior with orange and black armor, octane render, highly detailed, volumetric, dramatic lighting",
       "clip": [
-        "4",
+        "10",
         1
       ]
     },
@@ -52,9 +52,9 @@
   },
   "7": {
     "inputs": {
-      "text": "text, watermark",
+      "text": "ugly, deformed, noisy, low poly, blurry, painting",
       "clip": [
-        "4",
+        "10",
         1
       ]
     },
@@ -82,5 +82,21 @@
       ]
     },
     "class_type": "SaveImage"
+  },
+  "10": {
+    "inputs": {
+      "lora_name": "A-Rune\\Orange__Black.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "4",
+        0
+      ],
+      "clip": [
+        "4",
+        1
+      ]
+    },
+    "class_type": "LoraLoader"
   }
 }

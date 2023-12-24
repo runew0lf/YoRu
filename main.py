@@ -8,6 +8,7 @@ from modules.settings import resolutions, load_styles, styles, apply_style, path
 # https://docs.streamlit.io/
 
 TEMP_PROMPT = "black and white pencil sketch, extreme side closeup of a wizards face with black tattoos, black background"
+TEMP_MODEL = "crystalClearXL_ccxl.safetensors"
 
 client = WebSocketClient()
 
@@ -33,7 +34,9 @@ with main_column:
                 "Styles", load_styles(), default="Style: sai-cinematic"
             )
             model = right_column.selectbox(
-                "Model", path_manager.model_filenames, index=5
+                "Model",
+                path_manager.model_filenames,
+                index=path_manager.model_filenames.index(TEMP_MODEL),
             )
 
     with button_column:

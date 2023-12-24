@@ -1,11 +1,15 @@
-import streamlit as st
-from modules.websockets import WebSocketClient
 import random
+
 import requests
-from modules.utils import load_workflow, convert_bytes_to_PIL
-from modules.settings import resolutions, load_styles, styles, apply_style, path_manager
+import streamlit as st
+from streamlit_shortcuts import add_keyboard_shortcuts
+
+from modules.settings import apply_style, load_styles, path_manager, resolutions, styles
+from modules.utils import convert_bytes_to_PIL, load_workflow
+from modules.websockets import WebSocketClient
 
 # https://docs.streamlit.io/
+# https://github.com/adriangalilea/streamlit-shortcuts
 
 TEMP_PROMPT = "black and white pencil sketch, extreme side closeup of a wizards face with black tattoos, black background"
 TEMP_MODEL = "crystalClearXL_ccxl.safetensors"
@@ -85,3 +89,9 @@ with main_column:
             my_bar.progress(0)
         if st.button(label="Stop", use_container_width=True):
             requests.post(f"http://127.0.0.1:8188/interrupt", data="x")
+
+add_keyboard_shortcuts(
+    {
+        "Ctrl+Enter": "Generate",
+    }
+)

@@ -8,17 +8,17 @@ from modules.settings import apply_style, load_styles, path_manager, resolutions
 from modules.utils import convert_bytes_to_PIL, load_workflow
 from modules.websockets import WebSocketClient
 
-#from comfy.samplers import KSampler
 
 # https://docs.streamlit.io/
 # https://github.com/adriangalilea/streamlit-shortcuts
 
 TEMP_PROMPT = "black and white pencil sketch, extreme side closeup of a wizards face with black tattoos, black background"
 TEMP_MODEL = "crystalClearXL_ccxl.safetensors"
-TEMP_SAMPLER = "dpmpp_3m_sde"
+TEMP_SAMPLER = "dpmpp_3m_sde_gpu"
 TEMP_SCHEDULER = "karras"
 
 client = WebSocketClient()
+client.connect()
 st.set_page_config(layout="wide", page_title="YoRu", page_icon="🤖")
 
 # The next bit can be used to hide all the headers and footers, but it also hides the streamlit menu
@@ -46,16 +46,16 @@ with main_column:
         prompt_text_area = st.text_area(
             "prompt", value=TEMP_PROMPT, label_visibility="hidden"
         )
-        if st.checkbox("Hurt Me Plenty", value=False):
+        if st.checkbox("Hurt Me Plenty", value=True):
             steps = right_column.slider("Steps", 1, 100, 20)
             cfg = right_column.slider("Cfg", 1, 20, 7)
-            samplers = client.object_info("KSampler")["sampler_name"]
+            samplers = client.object_info("KSampler", "sampler_name")[0]
             sampler = right_column.selectbox(
                 "sampler",
                 samplers,
                 index=samplers.index(TEMP_SAMPLER),
             )
-            schedulers = client.object_info("KSampler")["scheduler"]
+            schedulers = client.object_info("KSampler", "scheduler")[0]
             scheduler = right_column.selectbox(
                 "scheduler",
                 schedulers,

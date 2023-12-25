@@ -4,6 +4,7 @@ import urllib.request
 import uuid
 import websocket
 from typing import Any, Dict, Generator, Optional, Union
+import time
 
 
 class WebSocketClient:
@@ -41,7 +42,14 @@ class WebSocketClient:
         """
         Connect to the websocket server.
         """
-        self.ws.connect(f"ws://{self.server_address}/ws?clientId={self.client_id}")
+        while True:
+            try:
+                self.ws.connect(
+                    f"ws://{self.server_address}/ws?clientId={self.client_id}"
+                )
+                break  # If the connection is successful, break the loop
+            except ConnectionError:
+                time.sleep(0.5)  # Wait for 5 seconds before trying again
 
     def disconnect(self) -> None:
         """
@@ -78,14 +86,33 @@ class WebSocketClient:
         ) as response:
             return json.loads(response.read().decode())
 
-    def object_info(self, object_name: str) -> Dict[str, Any]:
+    def object_info(self, object_name: str, field: str = None) -> Dict[str, Any]:
         """
         Get object_info of object
         """
         with urllib.request.urlopen(
             f"http://{self.server_address}/object_info/{object_name}"
         ) as response:
-            return json.loads(response.read().decode())
+            data = json.loads(response.read().decode())
+            if field:
+                return self.find_field(data, field)
+            else:
+                return data
+
+    def find_field(self, obj, field):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if k == field:
+                    return v
+                result = self.find_field(v, field)
+                if result is not None:
+                    return result
+        elif isinstance(obj, list):
+            for item in obj:
+                result = self.find_field(item, field)
+                if result is not None:
+                    return result
+        return None
 
     def get_images(
         self, prompt: str

@@ -3,7 +3,10 @@ import json
 
 
 class PathManager:
-    DEFAULT_PATHS = {"path_checkpoints": "../models/checkpoints/"}
+    DEFAULT_PATHS = {
+        "path_checkpoints": "../models/checkpoints/",
+        "path_loras": "../models/loras/",
+    }
 
     EXTENSIONS = [".pth", ".ckpt", ".bin", ".safetensors"]
 
@@ -28,6 +31,7 @@ class PathManager:
     def get_model_paths(self):
         return {
             "modelfile_path": self.get_abspath_folder(self.paths["path_checkpoints"]),
+            "lorafile_path": self.get_abspath_folder(self.paths["path_loras"]),
         }
 
     def get_abspath_folder(self, path):
@@ -42,6 +46,9 @@ class PathManager:
     def update_all_model_names(self):
         self.model_filenames = self.get_model_filenames(
             self.model_paths["modelfile_path"]
+        )
+        self.lora_filenames = self.get_model_filenames(
+            self.model_paths["lorafile_path"], True
         )
 
     def get_model_filenames(self, folder_path, isLora=False):

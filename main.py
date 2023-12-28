@@ -1,3 +1,4 @@
+import sys
 import random
 
 import requests
@@ -7,6 +8,7 @@ from streamlit_shortcuts import add_keyboard_shortcuts
 from modules.settings import apply_style, load_styles, path_manager, resolutions, styles
 from modules.utils import convert_bytes_to_PIL, load_workflow
 from modules.websockets import WebSocketClient
+import modules.args
 
 
 # https://docs.streamlit.io/
@@ -23,7 +25,12 @@ TEMP_SAMPLER = "dpmpp_3m_sde_gpu"
 TEMP_SCHEDULER = "karras"
 TEMP_LORA = "None"
 
+print(f"DEBUG: {sys.argv}")
+args = modules.args.parse_args()
+
 client = WebSocketClient()
+if not args.comfy is None:
+    client.server_address = args.comfy
 client.connect()
 st.set_page_config(layout="wide", page_title="YoRu", page_icon="🤖")
 

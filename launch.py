@@ -3,10 +3,10 @@ import streamlit.web.bootstrap
 from streamlit import config as _config
 import os
 import sys
+import modules.args
 
 # _config.set_option("server.headless", True)
-args = []
-
+args = modules.args.parse_args()
 
 def main():
     command = [
@@ -25,9 +25,10 @@ def main():
     if dirname != "":
         os.chdir(dirname)
 
-    process = subprocess.Popen(command, shell=True)
+    if args.comfy is None:
+        process = subprocess.Popen(command, shell=True)
     filename = os.path.join(dirname, "main.py")
-    streamlit.web.bootstrap.run(filename, "", args, flag_options={})
+    streamlit.web.bootstrap.run(filename, "", sys.argv[1:], flag_options={})
 
 
 if __name__ == "__main__":

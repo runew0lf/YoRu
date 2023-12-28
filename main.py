@@ -11,6 +11,11 @@ from modules.websockets import WebSocketClient
 
 # https://docs.streamlit.io/
 # https://github.com/adriangalilea/streamlit-shortcuts
+# https://github.com/sqlinsights/streamlit-vertical-slider (could be interesting for the sliders)
+# https://github.com/sqlinsights/streamlit-toggle-switch (interesting for the checkboxes)
+# https://arnaudmiribel.github.io/streamlit-extras/ extra widgets
+# pip install streamlit-tags (could be good for wildcards) https://share.streamlit.io/gagan3012/streamlit-tags/examples/app.py
+
 
 TEMP_PROMPT = "black and white pencil sketch, extreme side closeup of a wizards face with black tattoos, black background"
 TEMP_MODEL = "crystalClearXL_ccxl.safetensors"

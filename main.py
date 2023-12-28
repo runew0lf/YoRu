@@ -25,7 +25,6 @@ TEMP_SAMPLER = "dpmpp_3m_sde_gpu"
 TEMP_SCHEDULER = "karras"
 TEMP_LORA = "None"
 
-print(f"DEBUG: {sys.argv}")
 args = modules.args.parse_args()
 
 client = WebSocketClient()
@@ -76,15 +75,17 @@ with main_column:
             styles = right_column.multiselect(
                 "Styles", load_styles(), default="Style: sai-cinematic"
             )
+            models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
             model = right_column.selectbox(
                 "Model",
-                path_manager.model_filenames,
-                index=path_manager.model_filenames.index(TEMP_MODEL),
+                models,
+                index=models.index(TEMP_MODEL),
             )
             lora_col, strength_col = right_column.columns([1, 1])
+            lora_models = client.object_info("LoraLoader", "lora_name")[0]
             lora_model = lora_col.selectbox(
                 "Lora",
-                ["None"] + path_manager.lora_filenames,
+                ["None"] + lora_models,
                 index=0,
             )
             lora_strength = strength_col.slider("Strength", 0.0, 2.0, 1.0, 0.1)

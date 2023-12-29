@@ -3,7 +3,6 @@ import hashlib
 from typing import Dict, Any
 import threading
 import time
-import urllib
 
 
 class Civit:
@@ -37,11 +36,16 @@ class Civit:
                 imgcheck = path.with_suffix(".jpeg")
                 if not imgcheck.exists():
                     print(f"Downloading model preview for {path}")
-                    preview = self.get_preview(models)
-                    # FIXME download and save somewhere
                     try:
-                        if not preview is None:
-                            urllib.request.urlretrieve(preview, imgcheck)
+                        image_url = models["images"][0]["url"] 
+                    except:
+                        image_url = None
+                    try:
+                        if not image_url is None:
+                            response = requests.get(image_url)
+                            response.raise_for_status()
+                            with open(imgcheck, "wb") as file:
+                                file.write(response.content) 
                     except Exception as e:
                         print(f"ERROR: failed downloading {preview}\n    {e}")
                     time.sleep(1)
@@ -50,9 +54,8 @@ class Civit:
                 if isLora and not txtcheck.exists():
                     print(f"Downloading LoRA keywords for {path}")
                     keywords = self.get_keywords(models)
-                    # FIXME save text somewhere
-#                    with open(txtcheck, "w") as f:
-#                        f.write(", ".join(keywords))
+                    with open(txtcheck, "w") as f:
+                        f.write(", ".join(keywords))
                     time.sleep(1)
 
         self.worker_folders.remove(folder_path)
@@ -98,7 +101,3 @@ class Civit:
     def get_keywords(self, model):
         keywords = model.get("trainedWords", ["No Keywords for LoRA"])
         return keywords
-
-    def get_preview(self, model):
-        preview = model.get("images", [{"url": None}])[0]["url"]
-        return preview

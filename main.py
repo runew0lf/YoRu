@@ -36,6 +36,7 @@ if not args.comfy is None:
 client.connect()
 civit = modules.civit.Civit()
 civit.update_folder(Path("models/checkpoints"))
+civit.update_folder(Path("models/loras", isLora=True))
 ico = Image.open("icon.png")
 st.set_page_config(layout="wide", page_title="YoRu", page_icon=ico)
 

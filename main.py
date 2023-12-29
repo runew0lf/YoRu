@@ -1,4 +1,5 @@
 import random
+from pathlib import Path
 
 
 import requests
@@ -9,6 +10,7 @@ from modules.settings import apply_style, resolutions, styles
 from modules.utils import convert_bytes_to_PIL, load_workflow
 from modules.websockets import WebSocketClient
 import modules.args
+import modules.civit
 from PIL import Image
 
 
@@ -32,6 +34,8 @@ client = WebSocketClient()
 if not args.comfy is None:
     client.server_address = args.comfy
 client.connect()
+civit = modules.civit.Civit()
+civit.update_folder(Path("models/checkpoints"))
 ico = Image.open("icon.png")
 st.set_page_config(layout="wide", page_title="YoRu", page_icon=ico)
 

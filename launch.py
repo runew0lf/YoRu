@@ -8,6 +8,9 @@ import modules.args
 # _config.set_option("server.headless", True)
 args = modules.args.parse_args()
 
+_config.set_option("server.runOnSave", True)
+
+
 def main():
     command = [
         "..\python_embeded\python",

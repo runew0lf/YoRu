@@ -1,14 +1,15 @@
-import sys
 import random
+
 
 import requests
 import streamlit as st
 from streamlit_shortcuts import add_keyboard_shortcuts
 
-from modules.settings import apply_style, load_styles, path_manager, resolutions, styles
+from modules.settings import apply_style, resolutions, styles
 from modules.utils import convert_bytes_to_PIL, load_workflow
 from modules.websockets import WebSocketClient
 import modules.args
+from PIL import Image
 
 
 # https://docs.streamlit.io/
@@ -31,18 +32,25 @@ client = WebSocketClient()
 if not args.comfy is None:
     client.server_address = args.comfy
 client.connect()
-st.set_page_config(layout="wide", page_title="YoRu", page_icon="🤖")
+ico = Image.open("icon.png")
+st.set_page_config(layout="wide", page_title="YoRu", page_icon=ico)
 
 # The next bit can be used to hide all the headers and footers, but it also hides the streamlit menu
+st.markdown(
+    """
+    <style>
+        #MainMenu, header, footer {visibility: hidden;}
+        .block-container {
+            padding-top: 1rem;
+            padding-bottom: 0rem;
+            padding-left: 5rem;
+            padding-right: 5rem;
+        }    
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-# st.markdown(
-#     """
-# <style>
-#     #MainMenu, header, footer {visibility: hidden;}
-# </style>
-# """,
-#     unsafe_allow_html=True,
-# )
 left_column, main_column, right_column = st.columns([2, 6, 2])
 
 with main_column:
@@ -73,7 +81,7 @@ with main_column:
             no_of_images = right_column.slider("Images", 1, 20, 1)
             resolution_picker = right_column.selectbox("Resolution", resolutions)
             styles = right_column.multiselect(
-                "Styles", load_styles(), default="Style: sai-cinematic"
+                "Styles", styles, default="Style: sai-cinematic"
             )
             models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
             model = right_column.selectbox(

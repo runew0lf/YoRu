@@ -13,7 +13,7 @@ def apply_style(style, prompt, negative_prompt):
     output_prompt = []
     output_negative_prompt = []
 
-    while "Style: Pick Random" in style:
+    if "Style: Pick Random" in style:
         style[style.index("Style: Pick Random")] = random.choice(allstyles)
 
     if not style:
@@ -34,5 +34,9 @@ def apply_style(style, prompt, negative_prompt):
 
 
 def get_negative_prompt(prompt):
-    positive_prompt, negative_prompt = prompt.split("--no ")
+    if "--no " in prompt:
+        positive_prompt, negative_prompt = prompt.split("--no ")
+    else:
+        positive_prompt = prompt
+        negative_prompt = ""
     return positive_prompt.strip(), negative_prompt.strip()

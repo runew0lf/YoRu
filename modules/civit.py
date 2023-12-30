@@ -1,34 +1,32 @@
 import requests
 import hashlib
 from typing import Dict, Any
-import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
+import logging
+from pathlib import Path
+import concurrent.futures
 
 
 class Civit:
-    EXTENSIONS = [".pth", ".ckpt", ".bin", ".safetensors"]
+    EXTENSIONS = {".pth", ".ckpt", ".bin", ".safetensors"}
 
     def __init__(self, base_url="https://civitai.com/api/v1/"):
         self.base_url = base_url
         self.headers = {"Content-Type": "application/json"}
+        self.session = requests.Session()
+        self.worker_folders = set()
+        self.executor = ThreadPoolExecutor(max_workers=5)
 
     def update_folder(self, folder_path, isLora=False):
-        threading.Thread(
-            target=self.update_worker,
-            args=(
-                folder_path,
-                isLora,
-            ),
-            daemon=True,
-        ).start()
+        self.executor.submit(self.update_worker, folder_path, isLora)
 
-    worker_folders = []
     def update_worker(self, folder_path, isLora=False):
         if folder_path in self.worker_folders:
             # Already working on this folder
             return
-        self.worker_folders.append(folder_path)
-        for path in folder_path.rglob("*"):
+        self.worker_folders.add(folder_path)
+        for path in Path(folder_path).rglob("*"):
             if path.suffix.lower() in self.EXTENSIONS:
                 hash = self.model_hash(str(path))
                 models = self.get_models_by_hash(hash)
@@ -37,17 +35,14 @@ class Civit:
                 if not imgcheck.exists():
                     print(f"Downloading model preview for {path}")
                     try:
-                        image_url = models["images"][0]["url"] 
-                    except:
-                        image_url = None
-                    try:
-                        if not image_url is None:
-                            response = requests.get(image_url)
+                        image_url = models.get("images", [{}])[0].get("url")
+                        if image_url:
+                            response = self.session.get(image_url)
                             response.raise_for_status()
                             with open(imgcheck, "wb") as file:
-                                file.write(response.content) 
+                                file.write(response.content)
                     except Exception as e:
-                        print(f"ERROR: failed downloading {preview}\n    {e}")
+                        logging.error(f"ERROR: failed downloading {imgcheck}\n    {e}")
                     time.sleep(1)
 
                 txtcheck = path.with_suffix(".txt")
@@ -81,21 +76,21 @@ class Civit:
     def get_models_by_hash(self, hash):
         url = f"{self.base_url}model-versions/by-hash/{hash}"
         try:
-            response = requests.get(url, headers=self.headers)
+            response = self.session.get(url, headers=self.headers)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.HTTPError as e:
             if response.status_code == 404:
-                print("Error: Model Not Found on civit.ai")
+                logging.error("Error: Model Not Found on civit.ai")
                 return {}
             elif response.status_code == 503:
-                print("Error: Civit.ai Service Currently Unavailable")
+                logging.error("Error: Civit.ai Service Currently Unavailable")
                 return {}
             else:
-                print(f"HTTP Error: {e}")
+                logging.error(f"HTTP Error: {e}")
                 return {}
         except requests.exceptions.RequestException as e:
-            print(f"Error: {e}")
+            logging.error(f"Error: {e}")
             return {}
 
     def get_keywords(self, model):

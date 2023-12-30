@@ -109,61 +109,60 @@ with main_column:
 
     with button_column:
         st.write("#")
-        if st.button(label="Generate", use_container_width=True):
-            with WebSocketClient() as client:
-                workflow = load_workflow("standard_sdxl.json")
-                if lora_model != "None":
-                    workflow = load_workflow("sdxl_lora.json")
-                    workflow["10"]["inputs"]["lora_name"] = lora_model
-                    workflow["10"]["inputs"]["strength_model"] = lora_strength
+        generate_button = st.button(label="Generate", use_container_width=True)
+        stop_button = st.button(label="Stop", use_container_width=True)
 
-                ksampler = workflow["3"]["inputs"]
+### LOGIC ###
 
-                pos_prompt, neg_prompt = process_prompt(styles, prompt_text_area)
+if generate_button:
+    with WebSocketClient() as client:
+        workflow = load_workflow("standard_sdxl.json")
+        if lora_model != "None":
+            workflow = load_workflow("sdxl_lora.json")
+            workflow["10"]["inputs"]["lora_name"] = lora_model
+            workflow["10"]["inputs"]["strength_model"] = lora_strength
 
-                workflow["6"]["inputs"]["text"] = pos_prompt
-                workflow["7"]["inputs"]["text"] = neg_prompt
+        ksampler = workflow["3"]["inputs"]
 
-                print(workflow["6"]["inputs"]["text"])
-                print(workflow["7"]["inputs"]["text"])
+        pos_prompt, neg_prompt = process_prompt(styles, prompt_text_area)
 
-                ksampler["seed"] = random.randint(0, 1000000)  # random
-                ksampler["steps"] = steps
-                ksampler["cfg"] = cfg
-                ksampler["sampler_name"] = sampler
-                ksampler["scheduler"] = scheduler
-                workflow["5"]["inputs"]["width"] = resolutions[resolution_picker][
-                    "width"
-                ]
-                workflow["5"]["inputs"]["height"] = resolutions[resolution_picker][
-                    "height"
-                ]
-                workflow["5"]["inputs"]["batch_size"] = no_of_images
-                workflow["4"]["inputs"]["ckpt_name"] = model
+        workflow["6"]["inputs"]["text"] = pos_prompt
+        workflow["7"]["inputs"]["text"] = neg_prompt
 
-                my_bar.progress(0, f"Loading Model...")
-                for item in client.get_images(workflow):
-                    if client.status != "done":
-                        progress = int((100 / ksampler["steps"]) * item)
-                        my_bar.progress(
-                            progress, f"Generating... {item} / {ksampler['steps']}"
-                        )
-                        print(client.status.upper())
-                        if client.status == "executing":  ##Doesnt quite work yet
-                            my_bar.progress(
-                                progress, f"Current Node: {client.current_node}"
-                            )
+        print(workflow["6"]["inputs"]["text"])
+        print(workflow["7"]["inputs"]["text"])
 
-                        if client.preview is not None:
-                            image = convert_bytes_to_PIL(client.preview)
-                            thisfile.image(image, use_column_width="always")
+        ksampler["seed"] = random.randint(0, 1000000)  # random
+        ksampler["steps"] = steps
+        ksampler["cfg"] = cfg
+        ksampler["sampler_name"] = sampler
+        ksampler["scheduler"] = scheduler
+        workflow["5"]["inputs"]["width"] = resolutions[resolution_picker]["width"]
+        workflow["5"]["inputs"]["height"] = resolutions[resolution_picker]["height"]
+        workflow["5"]["inputs"]["batch_size"] = no_of_images
+        workflow["4"]["inputs"]["ckpt_name"] = model
 
-                for node_id, images in item.items():
-                    for image_data in images:
-                        thisfile.image(image_data, use_column_width="always")
-            my_bar.progress(0)
-        if st.button(label="Stop", use_container_width=True):
-            requests.post(f"http://127.0.0.1:8188/interrupt", data="x")
+        my_bar.progress(0, f"Loading Model...")
+        for item in client.get_images(workflow):
+            if client.status != "done":
+                progress = int((100 / ksampler["steps"]) * item)
+                my_bar.progress(progress, f"Generating... {item} / {ksampler['steps']}")
+                print(client.status.upper())
+                if client.status == "executing":  ##Doesnt quite work yet
+                    my_bar.progress(progress, f"Current Node: {client.current_node}")
+
+                if client.preview is not None:
+                    image = convert_bytes_to_PIL(client.preview)
+                    thisfile.image(image, use_column_width="always")
+
+        for node_id, images in item.items():
+            for image_data in images:
+                thisfile.image(image_data, use_column_width="always")
+    my_bar.progress(0)
+
+if stop_button:
+    requests.post(f"http://127.0.0.1:8188/interrupt", data="x")
+
 
 add_keyboard_shortcuts(
     {

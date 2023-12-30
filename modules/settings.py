@@ -1,5 +1,4 @@
 import tomllib as toml
-import random
 import shutil
 from csv import DictReader
 from pathlib import Path
@@ -29,27 +28,6 @@ def load_styles():
     styles.insert(0, default_style)
 
     return {s["name"]: (s["prompt"], s["negative_prompt"]) for s in styles}
-
-
-def apply_style(style, prompt, negative_prompt):
-    output_prompt = ""
-    output_negative_prompt = ""
-
-    while "Style: Pick Random" in style:
-        style[style.index("Style: Pick Random")] = random.choice(allstyles)
-
-    if not style:
-        return prompt, negative_prompt
-
-    for s in style:
-        p, n = styles.get(s, default_style)
-        output_prompt += p + ", "
-        output_negative_prompt += n + ", "
-
-    output_prompt = output_prompt.replace("{prompt}", prompt)
-    output_negative_prompt += ", " + negative_prompt
-
-    return output_prompt, output_negative_prompt
 
 
 def load_resolutions():

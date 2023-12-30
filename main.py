@@ -6,7 +6,8 @@ import requests
 import streamlit as st
 from streamlit_shortcuts import add_keyboard_shortcuts
 
-from modules.settings import apply_style, resolutions, styles
+from modules.settings import resolutions, styles
+from modules.prompt_processing import process_prompt
 from modules.utils import convert_bytes_to_PIL, load_workflow
 from modules.websockets import WebSocketClient
 import modules.args
@@ -118,10 +119,14 @@ with main_column:
 
                 ksampler = workflow["3"]["inputs"]
 
-                workflow["6"]["inputs"]["text"], _ = apply_style(
-                    styles, prompt_text_area, ""
-                )
+                pos_prompt, neg_prompt = process_prompt(styles, prompt_text_area)
+
+                workflow["6"]["inputs"]["text"] = pos_prompt
+                workflow["7"]["inputs"]["text"] = neg_prompt
+
                 print(workflow["6"]["inputs"]["text"])
+                print(workflow["7"]["inputs"]["text"])
+
                 ksampler["seed"] = random.randint(0, 1000000)  # random
                 ksampler["steps"] = steps
                 ksampler["cfg"] = cfg

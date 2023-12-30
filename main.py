@@ -20,6 +20,7 @@ from PIL import Image
 # https://github.com/sqlinsights/streamlit-vertical-slider (could be interesting for the sliders)
 # https://github.com/sqlinsights/streamlit-toggle-switch (interesting for the checkboxes)
 # https://arnaudmiribel.github.io/streamlit-extras/ extra widgets
+# https://github.com/andfanilo/streamlit-drawable-canvas (The worlds best drawable canvas)
 # pip install streamlit-tags (could be good for wildcards) https://share.streamlit.io/gagan3012/streamlit-tags/examples/app.py
 
 

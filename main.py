@@ -61,40 +61,56 @@ st.markdown(
 topbar = st.columns([1, 1, 1, 1, 1])
 left_column, main_column, _ = st.columns([2, 6, 3])
 
-steps = left_column.slider("Steps", 1, 100, 20)
-cfg = left_column.slider("Cfg", 1, 20, 7)
-samplers = client.object_info("KSampler", "sampler_name")[0]
-sampler = topbar[1].selectbox(
-    "sampler",
-    samplers,
-    index=samplers.index(TEMP_SAMPLER),
-    label_visibility="hidden",
-)
-schedulers = client.object_info("KSampler", "scheduler")[0]
-scheduler = topbar[2].selectbox(
-    "scheduler",
-    schedulers,
-    index=schedulers.index(TEMP_SCHEDULER),
-    label_visibility="hidden",
-)
-no_of_images = left_column.slider("Images", 1, 20, 1)
-resolution_picker = left_column.selectbox("Resolution", resolutions)
-styles = left_column.multiselect("Styles", styles, default="Style: sai-cinematic")
-models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
-model = topbar[0].selectbox(
-    "Model",
-    models,
-    index=models.index(TEMP_MODEL),
-    label_visibility="hidden",
-)
-lora_col, strength_col = left_column.columns([1, 1])
-lora_models = client.object_info("LoraLoader", "lora_name")[0]
-lora_model = lora_col.selectbox(
-    "Lora",
-    ["None"] + lora_models,
-    index=0,
-)
-lora_strength = strength_col.slider("Strength", 0.0, 2.0, 1.0, 0.1)
+tab_names = ["Prompt", "Settings", "Model", "LoRAs"]
+with left_column:
+    tabs = st.tabs(tab_names)
+
+with tabs[tab_names.index("Prompt")]:
+    prompt_text_area = st.text_area(
+        "prompt", value=TEMP_PROMPT, label_visibility="hidden"
+    )
+    generate_button = st.button(label="Generate", use_container_width=True)
+    stop_button = st.button(label="Stop", use_container_width=True)
+
+with tabs[tab_names.index("Settings")]:
+    steps = st.slider("Steps", 1, 100, 20)
+    cfg = st.slider("Cfg", 1, 20, 7)
+    samplers = client.object_info("KSampler", "sampler_name")[0]
+    sampler = st.selectbox(
+        "sampler",
+        samplers,
+        index=samplers.index(TEMP_SAMPLER),
+        label_visibility="hidden",
+    )
+    schedulers = client.object_info("KSampler", "scheduler")[0]
+    scheduler = st.selectbox(
+        "scheduler",
+        schedulers,
+        index=schedulers.index(TEMP_SCHEDULER),
+        label_visibility="hidden",
+    )
+    no_of_images = st.slider("Images", 1, 20, 1)
+    resolution_picker = st.selectbox("Resolution", resolutions)
+    styles = st.multiselect("Styles", styles, default="Style: sai-cinematic")
+
+with tabs[tab_names.index("Model")]:
+    models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
+    model = st.selectbox(
+        "Model",
+        models,
+        index=models.index(TEMP_MODEL),
+        label_visibility="hidden",
+    )
+
+with tabs[tab_names.index("LoRAs")]:
+    #lora_col, strength_col = left_column.columns([1, 1])
+    lora_models = client.object_info("LoraLoader", "lora_name")[0]
+    lora_model = st.selectbox(
+        "Lora",
+        ["None"] + lora_models,
+        index=0,
+    )
+    lora_strength = st.slider("Strength", 0.0, 2.0, 1.0, 0.1)
 
 with main_column:
     _, indent, _ = st.columns([1, 3, 1])
@@ -104,15 +120,7 @@ with main_column:
     my_bar = indent.progress(0)
     prompt_column, button_column = st.columns([6, 1])
 
-    with prompt_column:
-        prompt_text_area = st.text_area(
-            "prompt", value=TEMP_PROMPT, label_visibility="hidden"
-        )
-
-    with button_column:
-        st.write("#")
-        generate_button = st.button(label="Generate", use_container_width=True)
-        stop_button = st.button(label="Stop", use_container_width=True)
+#        st.write("#")
 
 ### LOGIC ###
 

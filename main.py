@@ -21,6 +21,7 @@ from PIL import Image
 # https://github.com/sqlinsights/streamlit-toggle-switch (interesting for the checkboxes)
 # https://arnaudmiribel.github.io/streamlit-extras/ extra widgets
 # https://github.com/andfanilo/streamlit-drawable-canvas (The worlds best drawable canvas)
+# https://github.com/DenizD/Streamlit-Image-Carousel (Better Gallery component)
 # pip install streamlit-tags (could be good for wildcards) https://share.streamlit.io/gagan3012/streamlit-tags/examples/app.py
 
 
@@ -58,11 +59,48 @@ st.markdown(
     unsafe_allow_html=True,
 )
 topbar = st.columns([1, 1, 1, 1, 1])
-left_column, main_column = st.columns([2, 6])
+left_column, main_column, _ = st.columns([2, 6, 3])
+
+steps = left_column.slider("Steps", 1, 100, 20)
+cfg = left_column.slider("Cfg", 1, 20, 7)
+samplers = client.object_info("KSampler", "sampler_name")[0]
+sampler = topbar[1].selectbox(
+    "sampler",
+    samplers,
+    index=samplers.index(TEMP_SAMPLER),
+    label_visibility="hidden",
+)
+schedulers = client.object_info("KSampler", "scheduler")[0]
+scheduler = topbar[2].selectbox(
+    "scheduler",
+    schedulers,
+    index=schedulers.index(TEMP_SCHEDULER),
+    label_visibility="hidden",
+)
+no_of_images = left_column.slider("Images", 1, 20, 1)
+resolution_picker = left_column.selectbox("Resolution", resolutions)
+styles = left_column.multiselect("Styles", styles, default="Style: sai-cinematic")
+models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
+model = topbar[0].selectbox(
+    "Model",
+    models,
+    index=models.index(TEMP_MODEL),
+    label_visibility="hidden",
+)
+lora_col, strength_col = left_column.columns([1, 1])
+lora_models = client.object_info("LoraLoader", "lora_name")[0]
+lora_model = lora_col.selectbox(
+    "Lora",
+    ["None"] + lora_models,
+    index=0,
+)
+lora_strength = strength_col.slider("Strength", 0.0, 2.0, 1.0, 0.1)
 
 with main_column:
     _, indent, _ = st.columns([1, 3, 1])
-    thisfile = indent.image("YoRu.png", use_column_width=True)
+    if "image" not in st.session_state:
+        st.session_state.image = "YoRu.png"
+    thisfile = indent.image(st.session_state.image, use_column_width=True)
     my_bar = indent.progress(0)
     prompt_column, button_column = st.columns([6, 1])
 
@@ -70,43 +108,6 @@ with main_column:
         prompt_text_area = st.text_area(
             "prompt", value=TEMP_PROMPT, label_visibility="hidden"
         )
-        if st.checkbox("Hurt Me Plenty", value=True):
-            steps = left_column.slider("Steps", 1, 100, 20)
-            cfg = left_column.slider("Cfg", 1, 20, 7)
-            samplers = client.object_info("KSampler", "sampler_name")[0]
-            sampler = topbar[1].selectbox(
-                "sampler",
-                samplers,
-                index=samplers.index(TEMP_SAMPLER),
-                label_visibility="hidden",
-            )
-            schedulers = client.object_info("KSampler", "scheduler")[0]
-            scheduler = topbar[2].selectbox(
-                "scheduler",
-                schedulers,
-                index=schedulers.index(TEMP_SCHEDULER),
-                label_visibility="hidden",
-            )
-            no_of_images = left_column.slider("Images", 1, 20, 1)
-            resolution_picker = left_column.selectbox("Resolution", resolutions)
-            styles = left_column.multiselect(
-                "Styles", styles, default="Style: sai-cinematic"
-            )
-            models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
-            model = topbar[0].selectbox(
-                "Model",
-                models,
-                index=models.index(TEMP_MODEL),
-                label_visibility="hidden",
-            )
-            lora_col, strength_col = left_column.columns([1, 1])
-            lora_models = client.object_info("LoraLoader", "lora_name")[0]
-            lora_model = lora_col.selectbox(
-                "Lora",
-                ["None"] + lora_models,
-                index=0,
-            )
-            lora_strength = strength_col.slider("Strength", 0.0, 2.0, 1.0, 0.1)
 
     with button_column:
         st.write("#")
@@ -153,12 +154,13 @@ if generate_button:
                     my_bar.progress(progress, f"Current Node: {client.current_node}")
 
                 if client.preview is not None:
-                    image = convert_bytes_to_PIL(client.preview)
-                    thisfile.image(image, use_column_width="always")
+                    st.session_state.image = convert_bytes_to_PIL(client.preview)
+                    thisfile.image(st.session_state.image, use_column_width="always")
 
         for node_id, images in item.items():
             for image_data in images:
-                thisfile.image(image_data, use_column_width="always")
+                st.session_state.image = image_data
+                thisfile.image(st.session_state.image, use_column_width="always")
     my_bar.progress(0)
 
 if stop_button:

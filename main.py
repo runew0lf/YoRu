@@ -105,16 +105,33 @@ with tabs[tab_names.index("Model")]:
     arr_images = []
     arr_captions = []
     for model in models:
-        arr_images.append(str(Path("models/checkpoints/" + model.replace(".safetensors", ".jpeg")).absolute()))
+        arr_images.append(
+            str(
+                Path(
+                    "models/checkpoints/" + model.replace(".safetensors", ".jpeg")
+                ).absolute()
+            )
+        )
         arr_captions.append(model.replace(".safetensors", ""))
     print(f"DEBUG: {arr_images}")
 
-    with st.container(height=200):
-        model2 = image_select(
-            label = "Model",
-            images = arr_images,
-            captions = arr_captions,
-        )
+    st.markdown(
+        """
+        <style>
+            .element-container {
+                max-height: 600px;
+                overflow-x: hidden;
+                overflow-y: scroll;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+    model2 = image_select(
+        label="Model",
+        images=arr_images,
+        captions=arr_captions,
+    )
 
 with tabs[tab_names.index("LoRAs")]:
     # lora_col, strength_col = left_column.columns([1, 1])

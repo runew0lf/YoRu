@@ -5,6 +5,7 @@ from pathlib import Path
 import requests
 import streamlit as st
 from streamlit_shortcuts import add_keyboard_shortcuts
+from streamlit_image_select import image_select
 
 from modules.settings import resolutions, styles
 from modules.prompt_processing import process_prompt
@@ -100,6 +101,20 @@ with tabs[tab_names.index("Model")]:
         index=models.index(TEMP_MODEL),
         label_visibility="hidden",
     )
+
+    arr_images = []
+    arr_captions = []
+    for model in models:
+        arr_images.append(str(Path("models/checkpoints/" + model.replace(".safetensors", ".jpeg")).absolute()))
+        arr_captions.append(model.replace(".safetensors", ""))
+    print(f"DEBUG: {arr_images}")
+
+    with st.container(height=200):
+        model2 = image_select(
+            label = "Model",
+            images = arr_images,
+            captions = arr_captions,
+        )
 
 with tabs[tab_names.index("LoRAs")]:
     # lora_col, strength_col = left_column.columns([1, 1])

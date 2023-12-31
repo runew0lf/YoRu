@@ -12,7 +12,7 @@ from modules.prompt_processing import process_prompt
 from modules.utils import convert_bytes_to_PIL, load_workflow
 from modules.websockets import WebSocketClient
 import modules.args
-import modules.civit
+import modules.civitai
 from PIL import Image
 
 
@@ -38,9 +38,9 @@ client = WebSocketClient()
 if not args.comfy is None:
     client.server_address = args.comfy
 client.connect()
-civit = modules.civit.Civit()
-civit.update_folder(Path("models/checkpoints"))
-civit.update_folder(Path("models/loras", isLora=True))
+civitai = modules.civitai.Civitai()
+civitai.update_folder(Path("models/checkpoints"))
+civitai.update_folder(Path("models/loras"), isLora=True)
 ico = Image.open("icon.png")
 st.set_page_config(layout="wide", page_title="YoRu", page_icon=ico)
 
@@ -104,16 +104,16 @@ with tabs[tab_names.index("Model")]:
 
     arr_images = []
     arr_captions = []
+    cachepath = Path(".cache/civitai")
     for model in models:
         arr_images.append(
             str(
-                Path(
-                    "models/checkpoints/" + model.replace(".safetensors", ".jpeg")
+                Path.joinpath(
+                    cachepath, model.replace(".safetensors", ".jpeg")
                 ).absolute()
             )
         )
         arr_captions.append(model.replace(".safetensors", ""))
-    print(f"DEBUG: {arr_images}")
 
     st.markdown(
         """

@@ -8,7 +8,7 @@ from pathlib import Path
 import concurrent.futures
 
 
-class Civit:
+class Civitai:
     EXTENSIONS = {".pth", ".ckpt", ".bin", ".safetensors"}
 
     def __init__(self, base_url="https://civitai.com/api/v1/"):
@@ -17,11 +17,12 @@ class Civit:
         self.session = requests.Session()
         self.worker_folders = set()
         self.executor = ThreadPoolExecutor(max_workers=5)
+        self.cache = Path(".cache/civitai") # FIXME get proper path from settings?
 
     def update_folder(self, folder_path, isLora=False):
         self.executor.submit(self.update_worker, folder_path, isLora)
 
-    def update_worker(self, folder_path, isLora=False):
+    def update_worker(self, folder_path, isLora):
         if folder_path in self.worker_folders:
             # Already working on this folder
             return
@@ -31,7 +32,7 @@ class Civit:
                 hash = self.model_hash(str(path))
                 models = self.get_models_by_hash(hash)
 
-                imgcheck = path.with_suffix(".jpeg")
+                imgcheck = Path(self.cache, Path(path.with_suffix(".jpeg")).name)
                 if not imgcheck.exists():
                     print(f"Downloading model preview for {path}")
                     try:
@@ -45,7 +46,7 @@ class Civit:
                         logging.error(f"ERROR: failed downloading {imgcheck}\n    {e}")
                     time.sleep(1)
 
-                txtcheck = path.with_suffix(".txt")
+                txtcheck = Path(self.cache, Path(path.with_suffix(".txt")).name)
                 if isLora and not txtcheck.exists():
                     print(f"Downloading LoRA keywords for {path}")
                     keywords = self.get_keywords(models)

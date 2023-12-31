@@ -95,12 +95,12 @@ with tabs[tab_names.index("Settings")]:
 
 with tabs[tab_names.index("Model")]:
     models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
-    model = st.selectbox(
-        "Model",
-        models,
-        index=models.index(TEMP_MODEL),
-        label_visibility="hidden",
-    )
+    #model = st.selectbox(
+    #    "Model",
+    #    models,
+    #    index=models.index(TEMP_MODEL),
+    #    label_visibility="hidden",
+    #)
 
     arr_images = []
     arr_captions = []
@@ -127,7 +127,7 @@ with tabs[tab_names.index("Model")]:
         """,
         unsafe_allow_html=True,
     )
-    model2 = image_select(
+    model = image_select(
         label="Model",
         images=arr_images,
         captions=arr_captions,
@@ -150,8 +150,6 @@ with main_column:
     thisfile = indent.image(st.session_state.image, use_column_width=True)
     my_bar = indent.progress(0)
     prompt_column, button_column = st.columns([6, 1])
-
-#        st.write("#")
 
 ### LOGIC ###
 
@@ -181,7 +179,7 @@ if generate_button:
         workflow["5"]["inputs"]["width"] = resolutions[resolution_picker]["width"]
         workflow["5"]["inputs"]["height"] = resolutions[resolution_picker]["height"]
         workflow["5"]["inputs"]["batch_size"] = no_of_images
-        workflow["4"]["inputs"]["ckpt_name"] = model
+        workflow["4"]["inputs"]["ckpt_name"] = Path(model.replace(".jpeg", ".safetensors")).name
 
         with st.spinner():
             my_bar.progress(0, f"Loading Model...")

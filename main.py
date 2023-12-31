@@ -58,16 +58,16 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-topbar = st.columns([1, 1, 1, 1, 1])
-left_column, main_column, _ = st.columns([2, 6, 3])
+left_column, main_column = st.columns([2, 6])
 
 tab_names = ["Prompt", "Settings", "Model", "LoRAs"]
 with left_column:
     tabs = st.tabs(tab_names)
 
 with tabs[tab_names.index("Prompt")]:
+    styles = st.multiselect("Styles", styles, default="Style: sai-cinematic")
     prompt_text_area = st.text_area(
-        "prompt", value=TEMP_PROMPT, label_visibility="hidden"
+        "prompt", value=TEMP_PROMPT, label_visibility="collapsed", height=400
     )
     generate_button = st.button(label="Generate", use_container_width=True)
     stop_button = st.button(label="Stop", use_container_width=True)
@@ -91,7 +91,6 @@ with tabs[tab_names.index("Settings")]:
     )
     no_of_images = st.slider("Images", 1, 20, 1)
     resolution_picker = st.selectbox("Resolution", resolutions)
-    styles = st.multiselect("Styles", styles, default="Style: sai-cinematic")
 
 with tabs[tab_names.index("Model")]:
     models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
@@ -103,7 +102,7 @@ with tabs[tab_names.index("Model")]:
     )
 
 with tabs[tab_names.index("LoRAs")]:
-    #lora_col, strength_col = left_column.columns([1, 1])
+    # lora_col, strength_col = left_column.columns([1, 1])
     lora_models = client.object_info("LoraLoader", "lora_name")[0]
     lora_model = st.selectbox(
         "Lora",
@@ -152,23 +151,30 @@ if generate_button:
         workflow["5"]["inputs"]["batch_size"] = no_of_images
         workflow["4"]["inputs"]["ckpt_name"] = model
 
-        my_bar.progress(0, f"Loading Model...")
-        for item in client.get_images(workflow):
-            if client.status != "done":
-                progress = int((100 / ksampler["steps"]) * item)
-                my_bar.progress(progress, f"Generating... {item} / {ksampler['steps']}")
-                print(client.status.upper())
-                if client.status == "executing":  ##Doesnt quite work yet
-                    my_bar.progress(progress, f"Current Node: {client.current_node}")
+        with st.spinner():
+            my_bar.progress(0, f"Loading Model...")
+            for item in client.get_images(workflow):
+                if client.status != "done":
+                    progress = int((100 / ksampler["steps"]) * item)
+                    my_bar.progress(
+                        progress, f"Generating... {item} / {ksampler['steps']}"
+                    )
+                    print(client.status.upper())
+                    if client.status == "executing":  ##Doesnt quite work yet
+                        my_bar.progress(
+                            progress, f"Current Node: {client.current_node}"
+                        )
 
-                if client.preview is not None:
-                    st.session_state.image = convert_bytes_to_PIL(client.preview)
+                    if client.preview is not None:
+                        st.session_state.image = convert_bytes_to_PIL(client.preview)
+                        thisfile.image(
+                            st.session_state.image, use_column_width="always"
+                        )
+
+            for node_id, images in item.items():
+                for image_data in images:
+                    st.session_state.image = image_data
                     thisfile.image(st.session_state.image, use_column_width="always")
-
-        for node_id, images in item.items():
-            for image_data in images:
-                st.session_state.image = image_data
-                thisfile.image(st.session_state.image, use_column_width="always")
     my_bar.progress(0)
 
 if stop_button:

@@ -71,7 +71,12 @@ with ui.row():
 
         with ui.tab_panels(tabs, value=tab["Prompt"]).classes('w-full'):
             with ui.tab_panel(tab["Prompt"]):
-#    styles = st.multiselect("Styles", styles, default="Style: sai-cinematic")
+                styles = ui.select(
+                    styles,
+                    label="Styles",
+                    value="Style: sai-cinematic",
+                    multiple=True,
+                )
                 prompt_text_area = ui.textarea(
                     label='Prompt',
                     placeholder='start typing',
@@ -184,13 +189,14 @@ with ui.row():
 #    lora_strength = st.slider("Strength", 0.0, 2.0, 1.0, 0.1)
 
     with ui.column():
+        ui.label("wtf?")
+        thisfile = ui.image("YoRu.png")
 #    _, indent, _ = st.columns([1, 3, 1])
 #    if "image" not in st.session_state:
 #        st.session_state.image = "YoRu.png"
 #    thisfile = indent.image(st.session_state.image, use_column_width=True)
-        thisfile = ui.image("YoRu.png")
-    #my_bar = indent.progress(0)
-    #prompt_column, button_column = st.columns([6, 1])
+#    my_bar = indent.progress(0)
+#    prompt_column, button_column = st.columns([6, 1])
 
 ### LOGIC ###
 

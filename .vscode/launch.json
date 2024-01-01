@@ -8,7 +8,7 @@
             "name": "Python: YoRu",
             "type": "python",
             "request": "launch",
-            "program": "launch.py",
+            "program": "ng_launch.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }

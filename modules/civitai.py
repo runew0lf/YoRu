@@ -2,10 +2,9 @@ import requests
 import hashlib
 from typing import Dict, Any
 import time
-from concurrent.futures import ThreadPoolExecutor
 import logging
+import threading
 from pathlib import Path
-import concurrent.futures
 
 
 class Civitai:
@@ -16,11 +15,17 @@ class Civitai:
         self.headers = {"Content-Type": "application/json"}
         self.session = requests.Session()
         self.worker_folders = set()
-        self.executor = ThreadPoolExecutor(max_workers=5)
         self.cache = Path(".cache/civitai") # FIXME get proper path from settings?
 
     def update_folder(self, folder_path, isLora=False):
-        self.executor.submit(self.update_worker, folder_path, isLora)
+        threading.Thread(
+            target=self.update_worker,
+            args=(
+                folder_path,
+                isLora,
+            ),
+            daemon=True,
+        ).start()
 
     def update_worker(self, folder_path, isLora):
         if folder_path in self.worker_folders:

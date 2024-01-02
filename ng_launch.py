@@ -26,12 +26,11 @@ def main():
     if dirname != "":
         os.chdir(dirname)
 
-    if args.comfy is None:
+    if args.comfy is None and __name__ == "__main__":
         process = subprocess.Popen(command, shell=True)
     filename = os.path.join(dirname, "main.py")
 
     import ng_main
 
-
-if __name__ in {"__main__", "__mp_main__"}:
+if __name__ in {"__main__"}:
     main()

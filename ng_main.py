@@ -5,6 +5,7 @@ from pathlib import Path
 import requests
 
 from nicegui import run, ui
+from fastapi import BackgroundTasks, FastAPI
 
 from modules.settings import resolutions, styles
 from modules.prompt_processing import process_prompt
@@ -34,15 +35,25 @@ TEMP_LORA = "None"
 
 args = modules.args.parse_args()
 
+api = FastAPI()
 client = WebSocketClient()
 if not args.comfy is None:
     client.server_address = args.comfy
 client.connect()
-# civitai = modules.civitai.Civitai()
-# civitai.update_folder(Path("models/checkpoints"))
-# civitai.update_folder(Path("models/loras"), isLora=True)
+
+civitai = modules.civitai.Civitai()
+civitai.update_folder(Path("models/checkpoints"))
+civitai.update_folder(Path("models/loras"), isLora=True)
 
 # st.set_page_config(layout="wide", page_title="YoRu", page_icon=ico)
+
+# Functions and logic
+
+def generate_clicked():
+    ui.notify(f"DEBUG: Click!")
+
+def stop_clicked():
+    ui.notify(f"DEBUG: Stop!")
 
 # The next bit can be used to hide all the headers and footers, but it also hides the streamlit menu
 # st.markdown(
@@ -61,6 +72,9 @@ client.connect()
 # )
 
 # left_column, main_column = st.columns([2, 6])
+
+
+# User interface
 
 tab_names = ["Prompt", "Settings", "Model", "LoRAs"]
 tab = {}
@@ -84,13 +98,15 @@ with ui.row():
                     label="Prompt",
                     placeholder="start typing",
                 )
-            #            on_change=lambda e: result.set_text(e.value)
-            #    generate_button = st.button(label="Generate", use_container_width=True)
-            #    stop_button = st.button(label="Stop", use_container_width=True)
-
-            #    with ui.tab_panel(tab["Prompt"]):
-            #    with ui.tab_panel(two):
-            #        ui.label('Second tab')
+                with ui.row():
+                    generate_button = ui.button(
+                        "Generate",
+                        on_click=lambda: generate_clicked(),
+                    )
+                    stop_button = ui.button(
+                        "Stop",
+                        on_click=lambda: stop_clicked(),
+                    )
 
             with ui.tab_panel(tab["Settings"]):
                 with ui.row():

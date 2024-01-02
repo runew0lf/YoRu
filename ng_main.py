@@ -34,6 +34,7 @@ client = WebSocketClient()
 if not args.comfy is None:
     client.server_address = args.comfy
 client.connect()
+models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
 
 civitai = modules.civitai.Civitai()
 civitai.update_folder(Path("models/checkpoints"))
@@ -150,6 +151,17 @@ with ui.row().classes('w-full no-wrap'):
                 resolution_picker = ui.select(
                     resolutions,
                 )
+
+            with ui.tab_panel(tab["Model"]):
+                model_select = {}
+                cachepath = Path(".cache/civitai")
+                with ui.row().classes("full flex items-center"):
+                    for modelname in models:
+                        with ui.card().tight():
+                            modelimage = Path.joinpath(cachepath, modelname.replace(".safetensors", ".jpeg"))
+                            model_select[modelname] = ui.image(str(modelimage)).style("width: 150px; aspect-ratio: 1")
+                            ui.label(modelname.replace(".safetensors", "")).classes('absolute-bottom text-subtitle2 text-center')
+
 
     # with tabs[tab_names.index("Model")]:
     #    models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]

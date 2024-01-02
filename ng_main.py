@@ -17,14 +17,8 @@ import modules.civitai
 from PIL import Image
 
 
-# https://docs.streamlit.io/
-# https://github.com/adriangalilea/streamlit-shortcuts
-# https://github.com/sqlinsights/streamlit-vertical-slider (could be interesting for the sliders)
-# https://github.com/sqlinsights/streamlit-toggle-switch (interesting for the checkboxes)
-# https://arnaudmiribel.github.io/streamlit-extras/ extra widgets
-# https://github.com/andfanilo/streamlit-drawable-canvas (The worlds best drawable canvas)
-# https://github.com/DenizD/Streamlit-Image-Carousel (Better Gallery component)
-# pip install streamlit-tags (could be good for wildcards) https://share.streamlit.io/gagan3012/streamlit-tags/examples/app.py
+# https://nicegui.io/documentation
+# https://tailwind.build/classes
 
 
 TEMP_PROMPT = "black and white pencil sketch, extreme side closeup of a wizards face with black tattoos, black background"
@@ -78,8 +72,8 @@ def stop_clicked():
 
 tab_names = ["Prompt", "Settings", "Model", "LoRAs"]
 tab = {}
-with ui.row():
-    with ui.column():
+with ui.row().classes('w-full no-wrap'):
+    with ui.column().classes('w-1/4'):
         with ui.tabs().classes("w-full") as tabs:
             for name in tab_names:
                 tab[name] = ui.tab(name)
@@ -113,16 +107,16 @@ with ui.row():
                     ui.label("Steps")
                     steps = ui.knob(
                         min=1,
-                        max=100,
+                        max=50,
                         step=1,
                         value=20,
                         show_value=True,
                     )
                     ui.label("CFG")
                     cfg = ui.knob(
-                        min=1,
+                        min=0,
                         max=20,
-                        step=1,
+                        step=0.01,
                         value=7,
                         show_value=True,
                     )
@@ -207,9 +201,9 @@ with ui.row():
     #    )
     #    lora_strength = st.slider("Strength", 0.0, 2.0, 1.0, 0.1)
 
-    with ui.column():
-        ui.label("wtf?")
-        thisfile = ui.image("YoRu.png")
+    with ui.column().classes('w-3/4 h-screen'):
+        thisfile = ui.image("YoRu.png").props('fit=scale-down')
+
 #    _, indent, _ = st.columns([1, 3, 1])
 #    if "image" not in st.session_state:
 #        st.session_state.image = "YoRu.png"

@@ -11,6 +11,7 @@ from modules.prompt_processing import process_prompt
 from modules.utils import convert_bytes_to_PIL, load_workflow
 from modules.websockets import WebSocketClient
 import modules.args
+
 import modules.civitai
 from PIL import Image
 
@@ -37,14 +38,14 @@ client = WebSocketClient()
 if not args.comfy is None:
     client.server_address = args.comfy
 client.connect()
-#civitai = modules.civitai.Civitai()
-#civitai.update_folder(Path("models/checkpoints"))
-#civitai.update_folder(Path("models/loras"), isLora=True)
+# civitai = modules.civitai.Civitai()
+# civitai.update_folder(Path("models/checkpoints"))
+# civitai.update_folder(Path("models/loras"), isLora=True)
 
-#st.set_page_config(layout="wide", page_title="YoRu", page_icon=ico)
+# st.set_page_config(layout="wide", page_title="YoRu", page_icon=ico)
 
 # The next bit can be used to hide all the headers and footers, but it also hides the streamlit menu
-#st.markdown(
+# st.markdown(
 #    """
 #    <style>
 #        #MainMenu, header, footer {visibility: hidden;}
@@ -57,39 +58,39 @@ client.connect()
 #    </style>
 #    """,
 #    unsafe_allow_html=True,
-#)
+# )
 
-#left_column, main_column = st.columns([2, 6])
+# left_column, main_column = st.columns([2, 6])
 
 tab_names = ["Prompt", "Settings", "Model", "LoRAs"]
 tab = {}
 with ui.row():
     with ui.column():
-        with ui.tabs().classes('w-full') as tabs:
+        with ui.tabs().classes("w-full") as tabs:
             for name in tab_names:
                 tab[name] = ui.tab(name)
 
-        with ui.tab_panels(tabs, value=tab["Prompt"]).classes('w-full'):
+        with ui.tab_panels(tabs, value=tab["Prompt"]).classes("w-full"):
             with ui.tab_panel(tab["Prompt"]):
-                styles = ui.select(
-                    styles,
+                # build styles list from styles using .keys()
+                stylelist = list(styles.keys())
+                stylescomponent = ui.select(
+                    stylelist,
                     label="Styles",
                     value="Style: sai-cinematic",
                     multiple=True,
                 )
                 prompt_text_area = ui.textarea(
-                    label='Prompt',
-                    placeholder='start typing',
+                    label="Prompt",
+                    placeholder="start typing",
                 )
-#            on_change=lambda e: result.set_text(e.value)
-#    generate_button = st.button(label="Generate", use_container_width=True)
-#    stop_button = st.button(label="Stop", use_container_width=True)
+            #            on_change=lambda e: result.set_text(e.value)
+            #    generate_button = st.button(label="Generate", use_container_width=True)
+            #    stop_button = st.button(label="Stop", use_container_width=True)
 
-
-#    with ui.tab_panel(tab["Prompt"]):
-#    with ui.tab_panel(two):
-#        ui.label('Second tab')
-
+            #    with ui.tab_panel(tab["Prompt"]):
+            #    with ui.tab_panel(two):
+            #        ui.label('Second tab')
 
             with ui.tab_panel(tab["Settings"]):
                 with ui.row():
@@ -130,7 +131,9 @@ with ui.row():
                     max=50,
                     value=1,
                     step=1,
-                    on_change=lambda e: no_of_images_label.set_text('Images: ' + str(e.value)),
+                    on_change=lambda e: no_of_images_label.set_text(
+                        "Images: " + str(e.value)
+                    ),
                 )
 
                 ui.label("Resolution")
@@ -138,55 +141,55 @@ with ui.row():
                     resolutions,
                 )
 
-#with tabs[tab_names.index("Model")]:
-#    models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
-#    #model = st.selectbox(
-#    #    "Model",
-#    #    models,
-#    #    index=models.index(TEMP_MODEL),
-#    #    label_visibility="hidden",
-#    #)
-#
-#    arr_images = []
-#    arr_captions = []
-#    cachepath = Path(".cache/civitai")
-#    for model in models:
-#        arr_images.append(
-#            str(
-#                Path.joinpath(
-#                    cachepath, model.replace(".safetensors", ".jpeg")
-#                ).absolute()
-#            )
-#        )
-#        arr_captions.append(model.replace(".safetensors", ""))
-#
-#    st.markdown(
-#        """
-#        <style>
-#            .element-container {
-#                max-height: 600px;
-#                overflow-x: hidden;
-#                overflow-y: scroll;
-#            }
-#        </style>
-#        """,
-#        unsafe_allow_html=True,
-#    )
-#    model = image_select(
-#        label="Model",
-#        images=arr_images,
-#        captions=arr_captions,
-#    )
-#
-#with tabs[tab_names.index("LoRAs")]:
-#    # lora_col, strength_col = left_column.columns([1, 1])
-#    lora_models = client.object_info("LoraLoader", "lora_name")[0]
-#    lora_model = st.selectbox(
-#        "Lora",
-#        ["None"] + lora_models,
-#        index=0,
-#    )
-#    lora_strength = st.slider("Strength", 0.0, 2.0, 1.0, 0.1)
+    # with tabs[tab_names.index("Model")]:
+    #    models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
+    #    #model = st.selectbox(
+    #    #    "Model",
+    #    #    models,
+    #    #    index=models.index(TEMP_MODEL),
+    #    #    label_visibility="hidden",
+    #    #)
+    #
+    #    arr_images = []
+    #    arr_captions = []
+    #    cachepath = Path(".cache/civitai")
+    #    for model in models:
+    #        arr_images.append(
+    #            str(
+    #                Path.joinpath(
+    #                    cachepath, model.replace(".safetensors", ".jpeg")
+    #                ).absolute()
+    #            )
+    #        )
+    #        arr_captions.append(model.replace(".safetensors", ""))
+    #
+    #    st.markdown(
+    #        """
+    #        <style>
+    #            .element-container {
+    #                max-height: 600px;
+    #                overflow-x: hidden;
+    #                overflow-y: scroll;
+    #            }
+    #        </style>
+    #        """,
+    #        unsafe_allow_html=True,
+    #    )
+    #    model = image_select(
+    #        label="Model",
+    #        images=arr_images,
+    #        captions=arr_captions,
+    #    )
+    #
+    # with tabs[tab_names.index("LoRAs")]:
+    #    # lora_col, strength_col = left_column.columns([1, 1])
+    #    lora_models = client.object_info("LoraLoader", "lora_name")[0]
+    #    lora_model = st.selectbox(
+    #        "Lora",
+    #        ["None"] + lora_models,
+    #        index=0,
+    #    )
+    #    lora_strength = st.slider("Strength", 0.0, 2.0, 1.0, 0.1)
 
     with ui.column():
         ui.label("wtf?")
@@ -200,7 +203,7 @@ with ui.row():
 
 ### LOGIC ###
 
-#if generate_button:
+# if generate_button:
 #    with WebSocketClient() as client:
 #        workflow = load_workflow("standard_sdxl.json")
 #        if lora_model != "None":
@@ -254,18 +257,14 @@ with ui.row():
 #                    thisfile.image(st.session_state.image, use_column_width="always")
 #    my_bar.progress(0)
 #
-#if stop_button:
+# if stop_button:
 #    requests.post(f"http://127.0.0.1:8188/interrupt", data="x")
 #
 #
-#add_keyboard_shortcuts(
+# add_keyboard_shortcuts(
 #    {
 #        "Ctrl+Enter": "Generate",
 #    }
-#)
+# )
 
-ui.run(
-    favicon="icon.png",
-    dark=True,
-    show=False,
-)
+ui.run(favicon="icon.png", dark=True, show=False, reload=False)

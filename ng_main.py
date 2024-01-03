@@ -154,15 +154,14 @@ with ui.row().classes("w-full no-wrap"):
                                     cachepath,
                                     modelname.replace(".safetensors", ".jpeg"),
                                 )
-                                model_select[modelname] = ui.image(
-                                    str(modelimage),
-                                ).style("width: 150px; aspect-ratio: 1")
-                                ui.button(
-                                    f"{modelname}",
+                                with ui.button(
                                     on_click=lambda modelname=modelname: ui.notify(
                                         f"Click: {modelname}"
                                     ),
-                                )
+                                ).style("width: 150px; aspect-ratio: 1"):
+                                    model_select[modelname] = ui.image(
+                                        str(modelimage),
+                                    )
     #                                ui.label(modelname.replace(".safetensors", "")).classes(
     #                                    "absolute-bottom text-subtitle2 text-center"
     #                                )

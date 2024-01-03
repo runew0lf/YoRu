@@ -136,7 +136,7 @@ with ui.row().classes('w-full no-wrap'):
             with ui.tab_panel(tab["Model"]):
                 model_select = {}
                 cachepath = Path(".cache/civitai")
-                with ui.scroll_area().classes('h-800 w-full'):
+                with ui.scroll_area().classes('h-screen w-full'):
                     with ui.row().classes("full flex items-center"):
                         for modelname in models:
                             with ui.card().tight():

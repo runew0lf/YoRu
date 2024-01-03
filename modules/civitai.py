@@ -43,11 +43,11 @@ class Civitai:
         for path in model_list:
             path = Path(folder_path, path)
             if path.suffix.lower() in self.EXTENSIONS:
-                hash = self.model_hash(str(path))
-                models = self.get_models_by_hash(hash) # FIXME read note at top of file
                 imgcheck = Path(self.cache, Path(path.with_suffix(".jpeg")).name)
 
                 if not imgcheck.exists():
+                    hash = self.model_hash(str(path))
+                    models = self.get_models_by_hash(hash) # FIXME read note at top of file
                     print(f"Downloading model preview for {path}")
                     try:
                         image_url = models.get("images", [{}])[0].get("url")

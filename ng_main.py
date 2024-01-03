@@ -157,10 +157,15 @@ with ui.row().classes("w-full no-wrap"):
                                 model_select[modelname] = ui.image(
                                     str(modelimage),
                                 ).style("width: 150px; aspect-ratio: 1")
-                                ui.button(f"{modelname}", on_click=lambda: ui.notify(f"Click: {modelname}"))
-#                                ui.label(modelname.replace(".safetensors", "")).classes(
-#                                    "absolute-bottom text-subtitle2 text-center"
-#                                )
+                                ui.button(
+                                    f"{modelname}",
+                                    on_click=lambda modelname=modelname: ui.notify(
+                                        f"Click: {modelname}"
+                                    ),
+                                )
+    #                                ui.label(modelname.replace(".safetensors", "")).classes(
+    #                                    "absolute-bottom text-subtitle2 text-center"
+    #                                )
 
     # with tabs[tab_names.index("Model")]:
     #    models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]

@@ -165,9 +165,9 @@ with ui.row().classes("w-full no-wrap"):
                                     model_select[modelname] = ui.image(
                                         str(modelimage),
                                     ).style("fit: cover; aspect-ratio: 1")
-    #                                ui.label(modelname.replace(".safetensors", "")).classes(
-    #                                    "absolute-bottom text-subtitle2 text-center"
-    #                                )
+                                    ui.label(modelname.replace(".safetensors", "")).classes(
+                                        "absolute-bottom text-subtitle2 text-center"
+                                    ).style("white-space: nowrap; overflow: hidden; text-overflow: ellipsis")
 
     # with tabs[tab_names.index("Model")]:
     #    models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]

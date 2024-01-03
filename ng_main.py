@@ -140,6 +140,9 @@ with ui.row().classes("w-full no-wrap"):
                     resolutions,
                 )
 
+            def model_mouse_handler():
+                ui.notify("Click")
+
             with ui.tab_panel(tab["Model"]):
                 model_select = {}
                 cachepath = Path(".cache/civitai")
@@ -152,11 +155,12 @@ with ui.row().classes("w-full no-wrap"):
                                     modelname.replace(".safetensors", ".jpeg"),
                                 )
                                 model_select[modelname] = ui.image(
-                                    str(modelimage)
+                                    str(modelimage),
                                 ).style("width: 150px; aspect-ratio: 1")
-                                ui.label(modelname.replace(".safetensors", "")).classes(
-                                    "absolute-bottom text-subtitle2 text-center"
-                                )
+                                ui.button(f"{modelname}", on_click=lambda: ui.notify(f"Click: {modelname}"))
+#                                ui.label(modelname.replace(".safetensors", "")).classes(
+#                                    "absolute-bottom text-subtitle2 text-center"
+#                                )
 
     # with tabs[tab_names.index("Model")]:
     #    models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]

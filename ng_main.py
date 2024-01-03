@@ -22,12 +22,15 @@ import toml
 # https://nicegui.io/documentation
 # https://tailwind.build/classes
 
-
-TEMP_PROMPT = "black and white pencil sketch, extreme side closeup of a wizards face with black tattoos, black background"
-TEMP_MODEL = "crystalClearXL_ccxl.safetensors"
-TEMP_SAMPLER = "dpmpp_3m_sde_gpu"
-TEMP_SCHEDULER = "karras"
-TEMP_LORA = "None"
+gen_data = {
+    "cfg": 7,
+    "lora": "None",
+    "model": "crystalClearXL_ccxl.safetensors",
+    "prompt": "black and white pencil sketch, extreme side closeup of a wizards face with black tattoos, black background",
+    "sampler": "dpmpp_3m_sde_gpu",
+    "scheduler": "karras",
+    "steps": 20,
+}
 
 
 status = None
@@ -83,6 +86,7 @@ with ui.row().classes("w-full no-wrap"):
                 prompt_text_area = ui.textarea(
                     label="Prompt",
                     placeholder="start typing",
+                    value=gen_data["prompt"],
                 )
                 with ui.row():
                     generate_button = ui.button(
@@ -101,7 +105,7 @@ with ui.row().classes("w-full no-wrap"):
                         min=1,
                         max=50,
                         step=1,
-                        value=20,
+                        value=gen_data["steps"],
                         show_value=True,
                     )
                     ui.label("CFG")
@@ -109,7 +113,7 @@ with ui.row().classes("w-full no-wrap"):
                         min=0,
                         max=20,
                         step=0.01,
-                        value=7,
+                        value=gen_data["cfg"],
                         show_value=True,
                     )
 
@@ -118,14 +122,14 @@ with ui.row().classes("w-full no-wrap"):
                     sampler = ui.select(
                         samplers,
                         label="Sampler",
-                        value=TEMP_SAMPLER,
+                        value=gen_data["sampler"],
                     )
 
                 schedulers = client.object_info("KSampler", "scheduler")[0]
                 scheduler = ui.select(
                     schedulers,
                     label="Scheduler",
-                    value=TEMP_SCHEDULER,
+                    value=gen_data["scheduler"],
                 )
                 no_of_images_label = ui.label("Images")
                 no_of_images = ui.slider(

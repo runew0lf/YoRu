@@ -29,6 +29,9 @@ TEMP_SAMPLER = "dpmpp_3m_sde_gpu"
 TEMP_SCHEDULER = "karras"
 TEMP_LORA = "None"
 
+
+status = None
+
 args = modules.args.parse_args()
 
 api = FastAPI()
@@ -140,11 +143,12 @@ with ui.row().classes("w-full no-wrap"):
                     resolutions,
                 )
 
-            def model_mouse_handler():
-                ui.notify("Click")
+            def model_select(modelname):
+                global status
+                status.set_text(f"Selected {modelname} model")
+                ui.notify(f"Click")
 
             with ui.tab_panel(tab["Model"]):
-                model_select = {}
                 cachepath = Path(".cache/civitai")
                 with ui.scroll_area().classes("w-full").style("height: 80vh"):
                     with ui.row().classes("full flex items-center"):
@@ -158,11 +162,11 @@ with ui.row().classes("w-full no-wrap"):
                                 # scale image to fit button
                                 with ui.button(
                                     color="transparent",
-                                    on_click=lambda modelname=modelname: ui.notify(
-                                        f"Click: {modelname}"
+                                    on_click=lambda modelname=modelname: model_select(
+                                        modelname
                                     ),
                                 ).style("width: 150px; aspect-ratio: 1"):
-                                    model_select[modelname] = ui.image(
+                                    ui.image(
                                         str(modelimage),
                                     ).style("fit: cover; aspect-ratio: 1")
                                     ui.label(modelname.replace(".safetensors", "")).classes(
@@ -219,8 +223,11 @@ with ui.row().classes("w-full no-wrap"):
     #    )
     #    lora_strength = st.slider("Strength", 0.0, 2.0, 1.0, 0.1)
 
-    with ui.column().classes("w-3/4 h-screen"):
-        thisfile = ui.image("resources/YoRu.png").props("fit=scale-down")
+    with ui.column().classes("w-3/4"):
+        with ui.row().classes("w-full"):
+            status = ui.label("").style("position: absolute")
+        with ui.row().classes("w-full"):
+            thisfile = ui.image("resources/YoRu.png").props("fit=scale-down height=90vh")
 
 #    _, indent, _ = st.columns([1, 3, 1])
 #    if "image" not in st.session_state:

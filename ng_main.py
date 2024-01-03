@@ -154,14 +154,17 @@ with ui.row().classes("w-full no-wrap"):
                                     cachepath,
                                     modelname.replace(".safetensors", ".jpeg"),
                                 )
+                                # create button with image
+                                # scale image to fit button
                                 with ui.button(
+                                    color="transparent",
                                     on_click=lambda modelname=modelname: ui.notify(
                                         f"Click: {modelname}"
                                     ),
                                 ).style("width: 150px; aspect-ratio: 1"):
                                     model_select[modelname] = ui.image(
                                         str(modelimage),
-                                    )
+                                    ).style("fit: cover; aspect-ratio: 1")
     #                                ui.label(modelname.replace(".safetensors", "")).classes(
     #                                    "absolute-bottom text-subtitle2 text-center"
     #                                )

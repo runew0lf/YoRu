@@ -46,9 +46,9 @@ class Civitai:
                 imgcheck = Path(self.cache, Path(path.with_suffix(".jpeg")).name)
 
                 if not imgcheck.exists():
+                    print(f"Downloading model preview for {path}")
                     hash = self.model_hash(str(path))
                     models = self.get_models_by_hash(hash) # FIXME read note at top of file
-                    print(f"Downloading model preview for {path}")
                     try:
                         image_url = models.get("images", [{}])[0].get("url")
                         if image_url:

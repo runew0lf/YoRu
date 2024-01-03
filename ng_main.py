@@ -37,10 +37,9 @@ client.connect()
 models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
 
 civitai = modules.civitai.Civitai()
-civitai.update_folder(Path("models/checkpoints"))
-civitai.update_folder(Path("models/loras"), isLora=True)
+civitai.update_cache(models, Path("models/checkpoints"))
+#civitai.update_cache(lora_models, Path("models/loras"), isLora=True)
 
-# st.set_page_config(layout="wide", page_title="YoRu", page_icon=ico)
 
 # Functions and logic
 
@@ -50,31 +49,13 @@ def generate_clicked():
 def stop_clicked():
     ui.notify(f"DEBUG: Stop!")
 
-# The next bit can be used to hide all the headers and footers, but it also hides the streamlit menu
-# st.markdown(
-#    """
-#    <style>
-#        #MainMenu, header, footer {visibility: hidden;}
-#        .block-container {
-#            padding-top: 1rem;
-#            padding-bottom: 0rem;
-#            padding-left: 5rem;
-#            padding-right: 5rem;
-#        }
-#    </style>
-#    """,
-#    unsafe_allow_html=True,
-# )
-
-# left_column, main_column = st.columns([2, 6])
-
 
 # User interface
 
 tab_names = ["Prompt", "Settings", "Model", "LoRAs"]
 tab = {}
 with ui.row().classes('w-full no-wrap'):
-    with ui.column().classes('w-1/4'):
+    with ui.column().classes('w-1/4 h-screen'):
         with ui.tabs().classes("w-full") as tabs:
             for name in tab_names:
                 tab[name] = ui.tab(name)
@@ -155,12 +136,13 @@ with ui.row().classes('w-full no-wrap'):
             with ui.tab_panel(tab["Model"]):
                 model_select = {}
                 cachepath = Path(".cache/civitai")
-                with ui.row().classes("full flex items-center"):
-                    for modelname in models:
-                        with ui.card().tight():
-                            modelimage = Path.joinpath(cachepath, modelname.replace(".safetensors", ".jpeg"))
-                            model_select[modelname] = ui.image(str(modelimage)).style("width: 150px; aspect-ratio: 1")
-                            ui.label(modelname.replace(".safetensors", "")).classes('absolute-bottom text-subtitle2 text-center')
+                with ui.scroll_area().classes('h-800 w-full'):
+                    with ui.row().classes("full flex items-center"):
+                        for modelname in models:
+                            with ui.card().tight():
+                                modelimage = Path.joinpath(cachepath, modelname.replace(".safetensors", ".jpeg"))
+                                model_select[modelname] = ui.image(str(modelimage)).style("width: 150px; aspect-ratio: 1")
+                                ui.label(modelname.replace(".safetensors", "")).classes('absolute-bottom text-subtitle2 text-center')
 
 
     # with tabs[tab_names.index("Model")]:
@@ -214,7 +196,7 @@ with ui.row().classes('w-full no-wrap'):
     #    lora_strength = st.slider("Strength", 0.0, 2.0, 1.0, 0.1)
 
     with ui.column().classes('w-3/4 h-screen'):
-        thisfile = ui.image("YoRu.png").props('fit=scale-down')
+        thisfile = ui.image("resources/YoRu.png").props('fit=scale-down')
 
 #    _, indent, _ = st.columns([1, 3, 1])
 #    if "image" not in st.session_state:
@@ -289,4 +271,4 @@ with ui.row().classes('w-full no-wrap'):
 #    }
 # )
 
-ui.run(favicon="icon.png", dark=True, show=False, reload=False)
+ui.run(favicon="resources/icon.png", dark=True, show=False, reload=False)

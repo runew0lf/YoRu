@@ -5,7 +5,13 @@ import time
 import logging
 import threading
 from pathlib import Path
+import shutil
 
+# FIXME: get model by searching for filename (not possible at the moment)
+#   modelfiles that match the name of the comfy-instance will use the hash of the
+#   local file to get an image from civitai. This will work fine if users use the
+#   built in comfyui but a remote comfyui with renamed models or models not in
+#   the local checkpoints folder can't find a proper image.
 
 class Civitai:
     EXTENSIONS = {".pth", ".ckpt", ".bin", ".safetensors"}
@@ -17,27 +23,30 @@ class Civitai:
         self.worker_folders = set()
         self.cache = Path(".cache/civitai") # FIXME get proper path from settings?
 
-    def update_folder(self, folder_path, isLora=False):
+    def update_cache(self, model_list, folder_path, isLora=False):
         threading.Thread(
             target=self.update_worker,
             args=(
+                model_list,
                 folder_path,
                 isLora,
             ),
             daemon=True,
         ).start()
 
-    def update_worker(self, folder_path, isLora):
+    def update_worker(self, model_list, folder_path, isLora):
         if folder_path in self.worker_folders:
             # Already working on this folder
             return
         self.worker_folders.add(folder_path)
-        for path in Path(folder_path).rglob("*"):
+
+        for path in model_list:
+            path = Path(folder_path, path)
             if path.suffix.lower() in self.EXTENSIONS:
                 hash = self.model_hash(str(path))
-                models = self.get_models_by_hash(hash)
-
+                models = self.get_models_by_hash(hash) # FIXME read note at top of file
                 imgcheck = Path(self.cache, Path(path.with_suffix(".jpeg")).name)
+
                 if not imgcheck.exists():
                     print(f"Downloading model preview for {path}")
                     try:
@@ -47,8 +56,11 @@ class Civitai:
                             response.raise_for_status()
                             with open(imgcheck, "wb") as file:
                                 file.write(response.content)
+                        else:
+                            shutil.copyfile("resources/questionmark.jpg", imgcheck)
                     except Exception as e:
                         logging.error(f"ERROR: failed downloading {imgcheck}\n    {e}")
+                        shutil.copyfile("resources/questionmark.jpg", imgcheck)
                     time.sleep(1)
 
                 txtcheck = Path(self.cache, Path(path.with_suffix(".txt")).name)

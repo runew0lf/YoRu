@@ -10,11 +10,13 @@ from fastapi import BackgroundTasks, FastAPI
 from modules.settings import resolutions, styles
 from modules.prompt_processing import process_prompt
 from modules.utils import convert_bytes_to_PIL, load_workflow
+from modules.paths import PathManager
 from modules.websockets import WebSocketClient
 import modules.args
 
 import modules.civitai
 from PIL import Image
+import toml
 
 
 # https://nicegui.io/documentation
@@ -31,20 +33,25 @@ args = modules.args.parse_args()
 
 api = FastAPI()
 client = WebSocketClient()
+paths = PathManager()
 if not args.comfy is None:
     client.server_address = args.comfy
 client.connect()
 models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
 
+
 civitai = modules.civitai.Civitai()
-civitai.update_cache(models, Path("models/checkpoints"))
-#civitai.update_cache(lora_models, Path("models/loras"), isLora=True)
+
+civitai.update_cache(models, Path(paths.get_models_path()))
+# civitai.update_cache(lora_models, Path(paths.get_loras_path()h), isLora=True)
 
 
 # Functions and logic
 
+
 def generate_clicked():
     ui.notify(f"DEBUG: Click!")
+
 
 def stop_clicked():
     ui.notify(f"DEBUG: Stop!")
@@ -54,8 +61,8 @@ def stop_clicked():
 
 tab_names = ["Prompt", "Settings", "Model", "LoRAs"]
 tab = {}
-with ui.row().classes('w-full no-wrap'):
-    with ui.column().classes('w-1/4 h-screen'):
+with ui.row().classes("w-full no-wrap"):
+    with ui.column().classes("w-1/4 h-screen"):
         with ui.tabs().classes("w-full") as tabs:
             for name in tab_names:
                 tab[name] = ui.tab(name)
@@ -136,14 +143,20 @@ with ui.row().classes('w-full no-wrap'):
             with ui.tab_panel(tab["Model"]):
                 model_select = {}
                 cachepath = Path(".cache/civitai")
-                with ui.scroll_area().classes('w-full').style("height: 80vh"):
+                with ui.scroll_area().classes("w-full").style("height: 80vh"):
                     with ui.row().classes("full flex items-center"):
                         for modelname in models:
                             with ui.card().tight():
-                                modelimage = Path.joinpath(cachepath, modelname.replace(".safetensors", ".jpeg"))
-                                model_select[modelname] = ui.image(str(modelimage)).style("width: 150px; aspect-ratio: 1")
-                                ui.label(modelname.replace(".safetensors", "")).classes('absolute-bottom text-subtitle2 text-center')
-
+                                modelimage = Path.joinpath(
+                                    cachepath,
+                                    modelname.replace(".safetensors", ".jpeg"),
+                                )
+                                model_select[modelname] = ui.image(
+                                    str(modelimage)
+                                ).style("width: 150px; aspect-ratio: 1")
+                                ui.label(modelname.replace(".safetensors", "")).classes(
+                                    "absolute-bottom text-subtitle2 text-center"
+                                )
 
     # with tabs[tab_names.index("Model")]:
     #    models = client.object_info("CheckpointLoaderSimple", "ckpt_name")[0]
@@ -195,8 +208,8 @@ with ui.row().classes('w-full no-wrap'):
     #    )
     #    lora_strength = st.slider("Strength", 0.0, 2.0, 1.0, 0.1)
 
-    with ui.column().classes('w-3/4 h-screen'):
-        thisfile = ui.image("resources/YoRu.png").props('fit=scale-down')
+    with ui.column().classes("w-3/4 h-screen"):
+        thisfile = ui.image("resources/YoRu.png").props("fit=scale-down")
 
 #    _, indent, _ = st.columns([1, 3, 1])
 #    if "image" not in st.session_state:

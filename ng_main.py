@@ -140,11 +140,8 @@ async def call_comfy():
 
 
 def stop_clicked():
-    ui.notify(f"DEBUG: Stop!")
-    requests.post(
-        f"http://127.0.0.1:8188/interrupt", data="x"
-    )  # FIXME connect to remote comfyui
-
+    ui.notify(f"Stop!")
+    client.interrupt()
 
 # User interface
 

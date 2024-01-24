@@ -57,6 +57,12 @@ class WebSocketClient:
         """
         self.ws.close()
 
+    def interrupt(selt) -> None:
+        """
+        Interrupt current work
+        """
+        req = urllib.request.Request(f"http://{self.server_address}/interrupt", data="x")
+
     def queue_prompt(self, prompt: str) -> Dict[str, Any]:
         """
         Queue a prompt to the server and return the server's response.

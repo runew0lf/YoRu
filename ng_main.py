@@ -1,10 +1,11 @@
 import random
 from pathlib import Path
 
-
 import requests
 
 from nicegui import run, ui
+from nicegui.background_tasks import create
+
 from fastapi import BackgroundTasks, FastAPI
 
 from modules.settings import resolutions, styles
@@ -17,7 +18,6 @@ import modules.args
 import modules.civitai
 from PIL import Image
 import toml
-
 
 # https://nicegui.io/documentation
 # https://tailwind.build/classes
@@ -59,8 +59,10 @@ civitai.update_cache(models, Path(paths.get_models_path()))
 
 def generate_clicked():
     ui.notify(f"DEBUG: Click!")
+    create(call_comfy())
 
 
+async def call_comfy():
     workflow = load_workflow("standard_sdxl.json")
 # FIXME use lora(s)
 #    if lora_model != "None":
@@ -74,9 +76,6 @@ def generate_clicked():
 
     workflow["6"]["inputs"]["text"] = pos_prompt
     workflow["7"]["inputs"]["text"] = neg_prompt
-
-    print(workflow["6"]["inputs"]["text"])
-    print(workflow["7"]["inputs"]["text"])
 
     ksampler["seed"] = random.randint(0, 1000000)  # random
     ksampler["steps"] = gen_data["steps"]
@@ -118,12 +117,12 @@ def generate_clicked():
 #                        st.session_state.image, use_column_width="always"
 #                    )
                     tmp_image = convert_bytes_to_PIL(client.preview)
-                    mainimage = tmp_image
+                    mainimage.set_source(tmp_image)
 
         for node_id, images in item.items():
             for image_data in images:
-                print(f"DEBUG: {image_data}")
-                mainimage = image_data
+                tmp_image = convert_bytes_to_PIL(client.preview)
+                mainimage.set_source(tmp_image)
                 #st.session_state.image = image_data
                 #mainimage.image(st.session_state.image, use_column_width="always")
 
@@ -377,3 +376,4 @@ with ui.row().classes("w-full no-wrap"):
 # )
 
 ui.run(favicon="resources/icon.png", dark=True, show=False, reload=False)
+print("DEBUG: start")

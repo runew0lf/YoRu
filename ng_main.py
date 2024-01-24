@@ -44,6 +44,7 @@ def update_gen_data(key, val):
 
 status = None
 mainimage = None
+progressbar = None
 
 args = modules.args.parse_args()
 
@@ -111,6 +112,7 @@ async def call_comfy():
             await asyncio.sleep(0.1)
             if client.status != "done":
                 progress = int((100 / ksampler["steps"]) * item)
+                progressbar.value = progress
                 # FIXME
                 #                my_bar.progress(
                 #                    progress, f"Generating... {item} / {ksampler['steps']}"
@@ -142,6 +144,7 @@ async def call_comfy():
 def stop_clicked():
     ui.notify(f"Stop!")
     client.interrupt()
+
 
 # User interface
 
@@ -324,6 +327,7 @@ with ui.row().classes("w-full no-wrap"):
             mainimage = ui.interactive_image("resources/YoRu.png").props(
                 "fit=scale-down height=90vh"
             )
+            progressbar = ui.linear_progress().style("width: 50%")
 
 #    _, indent, _ = st.columns([1, 3, 1])
 #    if "image" not in st.session_state:

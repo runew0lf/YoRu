@@ -35,6 +35,11 @@ gen_data = {
     "no_of_images": 1,
 }
 
+def update_gen_data(key, val):
+    global gen_data
+    print(f"DEBUG: Update gen_data[\"{key}\"] = {val}")
+    gen_data[key] = val
+
 status = None
 mainimage = None
 
@@ -59,7 +64,8 @@ civitai.update_cache(models, Path(paths.get_models_path()))
 
 
 def generate_clicked():
-    ui.notify(f"DEBUG: Click!")
+    print(f"DEBUG: {gen_data}")
+    #ui.notify(f"DEBUG: Click!")
     create(call_comfy())
 
 
@@ -157,11 +163,13 @@ with ui.row().classes("w-full no-wrap"):
                     label="Styles",
                     value="Style: sai-cinematic",
                     multiple=True,
+                    on_change=lambda e: update_gen_data("styles", e.value),
                 )
                 prompt_text_area = ui.textarea(
                     label="Prompt",
                     placeholder="start typing",
                     value=gen_data["prompt"],
+                    on_change=lambda e: update_gen_data("prompt", e.value),
                 )
                 with ui.row():
                     generate_button = ui.button(
@@ -182,6 +190,7 @@ with ui.row().classes("w-full no-wrap"):
                         step=1,
                         value=gen_data["steps"],
                         show_value=True,
+                        on_change=lambda e: update_gen_data("steps", e.value),
                     )
                     ui.label("CFG")
                     cfg = ui.knob(
@@ -190,6 +199,7 @@ with ui.row().classes("w-full no-wrap"):
                         step=0.01,
                         value=gen_data["cfg"],
                         show_value=True,
+                        on_change=lambda e: update_gen_data("cfg", e.value),
                     )
 
                 with ui.row():
@@ -198,6 +208,7 @@ with ui.row().classes("w-full no-wrap"):
                         samplers,
                         label="Sampler",
                         value=gen_data["sampler"],
+                        on_change=lambda e: update_gen_data("sampler", e.value),
                     )
 
                 schedulers = client.object_info("KSampler", "scheduler")[0]
@@ -205,6 +216,7 @@ with ui.row().classes("w-full no-wrap"):
                     schedulers,
                     label="Scheduler",
                     value=gen_data["scheduler"],
+                    on_change=lambda e: update_gen_data("scheduler", e.value),
                 )
                 no_of_images_label = ui.label("Images")
                 no_of_images = ui.slider(
@@ -224,8 +236,8 @@ with ui.row().classes("w-full no-wrap"):
 
             def model_select(modelname):
                 global status
+                update_gen_data("model", modelname),
                 status.set_text(f"Selected {modelname} model")
-                ui.notify(f"Click")
 
             with ui.tab_panel(tab["Model"]):
                 cachepath = Path(".cache/civitai")

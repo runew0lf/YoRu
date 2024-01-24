@@ -27,13 +27,15 @@ gen_data = {
     "lora": "None",
     "model": "crystalClearXL_ccxl.safetensors",
     "prompt": "black and white pencil sketch, extreme side closeup of a wizards face with black tattoos, black background",
+    "styles": None,
     "sampler": "dpmpp_3m_sde_gpu",
     "scheduler": "karras",
     "steps": 20,
+    "no_of_images": 1,
 }
 
-
 status = None
+mainimage = None
 
 args = modules.args.parse_args()
 
@@ -59,8 +61,76 @@ def generate_clicked():
     ui.notify(f"DEBUG: Click!")
 
 
+    workflow = load_workflow("standard_sdxl.json")
+# FIXME use lora(s)
+#    if lora_model != "None":
+#        workflow = load_workflow("sdxl_lora.json")
+#        workflow["10"]["inputs"]["lora_name"] = lora_model
+#        workflow["10"]["inputs"]["strength_model"] = lora_strength
+
+    ksampler = workflow["3"]["inputs"]
+
+    pos_prompt, neg_prompt = process_prompt(gen_data["styles"], gen_data["prompt"])
+
+    workflow["6"]["inputs"]["text"] = pos_prompt
+    workflow["7"]["inputs"]["text"] = neg_prompt
+
+    print(workflow["6"]["inputs"]["text"])
+    print(workflow["7"]["inputs"]["text"])
+
+    ksampler["seed"] = random.randint(0, 1000000)  # random
+    ksampler["steps"] = gen_data["steps"]
+    ksampler["cfg"] = gen_data["cfg"]
+    ksampler["sampler_name"] = gen_data["sampler"]
+    ksampler["scheduler"] = gen_data["scheduler"]
+
+# FIXME scale this according to the type of model?
+#    workflow["5"]["inputs"]["width"] = resolutions[resolution_picker]["width"]
+#    workflow["5"]["inputs"]["height"] = resolutions[resolution_picker]["height"]
+    workflow["5"]["inputs"]["width"] = 1024
+    workflow["5"]["inputs"]["height"] = 1024
+
+    workflow["5"]["inputs"]["batch_size"] = gen_data["no_of_images"]
+    workflow["4"]["inputs"]["ckpt_name"] = Path(gen_data["model"].replace(".jpeg", ".safetensors")).name
+
+#    with st.spinner():
+    if True:
+#FIXME
+#        my_bar.progress(0, f"Loading Model...")
+        for item in client.get_images(workflow):
+            if client.status != "done":
+                progress = int((100 / ksampler["steps"]) * item)
+#FIXME
+#                my_bar.progress(
+#                    progress, f"Generating... {item} / {ksampler['steps']}"
+#                )
+                print(client.status.upper())
+# FIXME
+                if client.status == "executing":  ##Doesnt quite work yet
+                    print(f"Thinking...")
+#                    my_bar.progress(
+#                        progress, f"Current Node: {client.current_node}"
+#                    )
+
+                if client.preview is not None:
+#                    st.session_state.image = convert_bytes_to_PIL(client.preview)
+#                    mainimage.image(
+#                        st.session_state.image, use_column_width="always"
+#                    )
+                    tmp_image = convert_bytes_to_PIL(client.preview)
+                    mainimage = tmp_image
+
+        for node_id, images in item.items():
+            for image_data in images:
+                print(f"DEBUG: {image_data}")
+                mainimage = image_data
+                #st.session_state.image = image_data
+                #mainimage.image(st.session_state.image, use_column_width="always")
+
+
 def stop_clicked():
     ui.notify(f"DEBUG: Stop!")
+    requests.post(f"http://127.0.0.1:8188/interrupt", data="x") # FIXME connect to remote comfyui
 
 
 # User interface
@@ -231,7 +301,7 @@ with ui.row().classes("w-full no-wrap"):
         with ui.row().classes("w-full"):
             status = ui.label("").style("position: absolute")
         with ui.row().classes("w-full"):
-            thisfile = ui.image("resources/YoRu.png").props("fit=scale-down height=90vh")
+            mainimage = ui.image("resources/YoRu.png").props("fit=scale-down height=90vh")
 
 #    _, indent, _ = st.columns([1, 3, 1])
 #    if "image" not in st.session_state:

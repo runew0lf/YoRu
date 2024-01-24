@@ -35,10 +35,12 @@ gen_data = {
     "no_of_images": 1,
 }
 
+
 def update_gen_data(key, val):
     global gen_data
-    print(f"DEBUG: Update gen_data[\"{key}\"] = {val}")
+    print(f'DEBUG: Update gen_data["{key}"] = {val}')
     gen_data[key] = val
+
 
 status = None
 mainimage = None
@@ -65,7 +67,7 @@ civitai.update_cache(models, Path(paths.get_models_path()))
 
 def generate_clicked():
     print(f"DEBUG: {gen_data}")
-    #ui.notify(f"DEBUG: Click!")
+    # ui.notify(f"DEBUG: Click!")
     create(call_comfy())
 
 
@@ -322,7 +324,7 @@ with ui.row().classes("w-full no-wrap"):
         with ui.row().classes("w-full"):
             status = ui.label("").style("position: absolute")
         with ui.row().classes("w-full"):
-            mainimage = ui.image("resources/YoRu.png").props(
+            mainimage = ui.interactive_image("resources/YoRu.png").props(
                 "fit=scale-down height=90vh"
             )
 
